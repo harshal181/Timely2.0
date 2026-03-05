@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Timely</string>
+    <string name="error_request_timeout">The request timed out. Please try again.</string>
+    <string name="error_too_many_requests">Too many requests. Please wait a moment and try again.</string>
+    <string name="error_no_internet">No internet connection. Please check your network.</string>
+    <string name="error_unknown">unknown error occured, pls try again</string>
+    <string name="error_email_exists">User already exists.\n</string>
+    <string name="invalid_credentials">Invalid email/id or password</string>
+    <string name="error_unauthorized">Session expired or unauthorized. Please log in again.</string>
+    <string name="error_profile_not_found">Profile Not Found</string>
+    <string name="error_profile_update_failed">Failed to Update profile..\n</string>
+</resources>
