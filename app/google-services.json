@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "726953060756",
+    "project_id": "timely-notifications-d980e",
+    "storage_bucket": "timely-notifications-d980e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:726953060756:android:2049759ecb4dcefa3b0781",
+        "android_client_info": {
+          "package_name": "com.om.timely"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBTi7yKO0ojGty2qKcFqHNmBHU3sx5y6hs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

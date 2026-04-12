@@ -16,6 +16,12 @@ fun ProfileError.asUiText(): UiText {
         }
 
         is ProfileError.Network -> this.networkError.asUiText()
+        ProfileError.INCORREC_PASSWORD -> {
+            UiText.StringResource(R.string.passwords_do_not_match)
+        }
+        ProfileError.PASSWORD_ALREDY_USED -> {
+            UiText.StringResource(R.string.password_already_used)
+        }
     }
 }
 

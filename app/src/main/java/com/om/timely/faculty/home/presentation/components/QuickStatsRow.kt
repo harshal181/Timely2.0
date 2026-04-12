@@ -1,6 +1,7 @@
 package com.om.timely.faculty.home.presentation.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -15,14 +16,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.om.timely.faculty.home.domain.model.QuickStats
+import com.om.timely.R
 
 @Composable
 fun QuickStatsRow(
     stats: QuickStats,
+    onSubjectClick: () -> Unit,
+    onBatchClick: () -> Unit = {},
+    showValue: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -32,18 +38,24 @@ fun QuickStatsRow(
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         QuickStatItem(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+                .weight(1f)
+                .clickable { onSubjectClick() },
             icon = Icons.Outlined.Book,
             label = "Subjects",
             value = stats.subjects.toString(),
+            showValue = showValue,
             iconBgColor = Color(0xFFF5F3FF),
             iconColor = Color(0xFF7C3AED)
         )
         QuickStatItem(
-            modifier = Modifier.weight(1f),
-            icon = Icons.Outlined.Group,
-            label = "Batches",
+            modifier = Modifier
+                .weight(1f)
+                .clickable { onBatchClick() },
+            icon = ImageVector.vectorResource(R.drawable.ic_add_syllabus),
+            label = "Syllabus",
             value = stats.batches.toString(),
+            showValue = showValue,
             iconBgColor = Color(0xFFECFDF5),
             iconColor = Color(0xFF059669)
         )
@@ -56,6 +68,7 @@ private fun QuickStatItem(
     icon: ImageVector,
     label: String,
     value: String,
+    showValue: Boolean,
     iconBgColor: Color,
     iconColor: Color
 ) {
@@ -86,13 +99,17 @@ private fun QuickStatItem(
                     modifier = Modifier.size(22.dp)
                 )
             }
-            Column {
-                Text(
-                    text = value,
-                    color = Color(0xFF1F2937),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.ExtraBold
-                )
+            Column(
+                verticalArrangement = Arrangement.Center
+            ) {
+                if (showValue) {
+                    Text(
+                        text = value,
+                        color = Color(0xFF1F2937),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.ExtraBold
+                    )
+                }
                 Text(
                     text = label,
                     color = Color(0xFF9CA3AF),

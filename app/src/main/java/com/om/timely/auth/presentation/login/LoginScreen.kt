@@ -1,6 +1,5 @@
 package com.om.timely.auth.presentation.login
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -15,10 +14,13 @@ import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -46,13 +48,15 @@ fun LoginScreen(
 ) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(key1 = true) {
         events.collect { event ->
             when (event) {
                 is LoginEvent.LoginSuccess -> onLoginSuccess(event.route)
                 is LoginEvent.LoginError -> {
-                    Toast.makeText(context, event.error.asString(context), Toast.LENGTH_LONG).show()
+                    // Show backend/auth errors as a Snackbar — clean, non-intrusive
+                    snackbarHostState.showSnackbar(event.error.asString(context))
                 }
                 LoginEvent.NavigateToSignup -> onNavigateSignup()
             }
@@ -62,7 +66,8 @@ fun LoginScreen(
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = Color(0xFFF9FAFB),
-        contentWindowInsets = WindowInsets(0, 0, 0, 0)
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -146,17 +151,10 @@ fun LoginScreen(
                     },
                     modifier = Modifier.padding(top = 8.dp)
                 )
-
-
             }
-            if (state.error != null) {
-                Text(
-                    text = state.error.asString(context),
-                    color = Color.Red,
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                    fontSize = 14.sp
-                )
-            }
+
+            // NOTE: No inline error Text widget here — backend errors appear as a Snackbar.
+            // Field-level validation errors are shown inline by AuthTextField via isError/errorMessage.
 
             Row(
                 modifier = Modifier

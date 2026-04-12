@@ -1,8 +1,12 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -17,8 +21,18 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        val properties = Properties()
+        val localPropsObj = project.rootProject.file("local.properties")
+        if (localPropsObj.exists()) {
+            properties.load(localPropsObj.inputStream())
+        }
         
-        buildConfigField("String", "BASE_URL", "\"http://192.168.183.27:8000\"")
+        buildConfigField("String", "BASE_URL", "\"http://${properties.getProperty("SERVER_IP_ADDRESS","192.168.158.166")}:8000\"")
+        
+
+        buildConfigField("String", "CLOUDINARY_CLOUD_NAME", "\"${properties.getProperty("CLOUDINARY_CLOUD_NAME", "YOUR_CLOUD_NAME")}\"")
+        buildConfigField("String", "CLOUDINARY_API_KEY", "\"${properties.getProperty("CLOUDINARY_API_KEY", "YOUR_KEY")}\"")
+        buildConfigField("String", "CLOUDINARY_API_SECRET", "\"${properties.getProperty("CLOUDINARY_API_SECRET", "YOUR_SECRET")}\"")
     }
 
     buildTypes {
@@ -57,6 +71,10 @@ dependencies {
     
     // Koin
     implementation(libs.koin.androidx.compose)
+    implementation(libs.koin.androidx.workmanager)
+
+    // WorkManager
+    implementation(libs.androidx.work.runtime.ktx)
 
     // Ktor
     implementation(libs.ktor.client.core)
@@ -65,6 +83,8 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.client.auth)
     implementation(libs.ktor.client.logging)
+    implementation(libs.ktor.client.cio)
+//    implementation(libs.ktor.client.sse)
 
     // Serialization
     implementation(libs.kotlinx.serialization.json)
@@ -78,6 +98,25 @@ dependencies {
     // Splash Screen
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.ui.text.google.fonts)
+
+    // Room Database
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.room.common.jvm)
+    ksp(libs.androidx.room.compiler)
+
+    // Reorderable
+    implementation("sh.calvin.reorderable:reorderable:2.4.0")
+    implementation("androidx.core:core-splashscreen:1.0.1")
+    implementation(platform("com.google.firebase:firebase-bom:34.10.0"))
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging)
+    // Provides .await() on Firebase Tasks for clean coroutine integration
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.1")
+    
+    // Cloudinary for Image Uploads
+    implementation("com.cloudinary:cloudinary-android:3.0.2")
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

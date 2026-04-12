@@ -30,6 +30,7 @@ data class UserOutDto(
     val name: String,
     val email: String,
     val role: String,
+    val dept: String,
     @SerialName("created_at") val createdAt: String?,
     @SerialName("updated_at") val updatedAt: String?
 )
@@ -39,6 +40,7 @@ data class UserCreateDto(
     val email: String,
     val password: String,
     val role: String, // Backend probably expects a string like "STUDENT"
+    val dept: String,
     @SerialName("student_details") val studentDetails: StudentCreateDto? = null,
     @SerialName("faculty_details") val facultyDetails: FacultyCreateDto? = null
 )
@@ -49,6 +51,7 @@ data class CreateUserResultDto(
     val name: String,
     val email: String,
     val role: String,
+    val dept: String,
     @SerialName("created_at") val createdAt: String? = null,
     @SerialName("updated_at") val updatedAt: String? = null
 )

@@ -1,0 +1,438 @@
+{
+    "semesters": [
+        {
+            "semester": "V",
+            "subjects": [
+                {
+                    "name": "Artificial Intelligence",
+                    "course_code": "PCC-CS",
+                    "lecture": 3,
+                    "tutorial": 1,
+                    "practical": 0,
+                    "type": "core",
+                    "elective_group": null
+                },
+                {
+                    "name": "Artificial Intelligence -Lab",
+                    "course_code": "PCC-CS",
+                    "lecture": 0,
+                    "tutorial": 0,
+                    "practical": 2,
+                    "type": "lab",
+                    "elective_group": null
+                },
+                {
+                    "name": "Design & Analysis of Algorithms",
+                    "course_code": "PCC-CS",
+                    "lecture": 3,
+                    "tutorial": 1,
+                    "practical": 0,
+                    "type": "core",
+                    "elective_group": null
+                },
+                {
+                    "name": "Design & Analysis of Algorithms -Lab",
+                    "course_code": "PCC-CS",
+                    "lecture": 0,
+                    "tutorial": 0,
+                    "practical": 2,
+                    "type": "lab",
+                    "elective_group": null
+                },
+                {
+                    "name": "Software Engineering & Project Management",
+                    "course_code": "PCC-CS",
+                    "lecture": 3,
+                    "tutorial": 0,
+                    "practical": 0,
+                    "type": "project",
+                    "elective_group": null
+                },
+                {
+                    "name": "TCP/IP",
+                    "course_code": "PEC-CS",
+                    "lecture": 3,
+                    "tutorial": 0,
+                    "practical": 0,
+                    "type": "elective",
+                    "elective_group": "Elective-I"
+                },
+                {
+                    "name": "Design Patterns",
+                    "course_code": "PEC-CS",
+                    "lecture": 3,
+                    "tutorial": 0,
+                    "practical": 0,
+                    "type": "elective",
+                    "elective_group": "Elective-I"
+                },
+                {
+                    "name": "Data Warehousing and Mining",
+                    "course_code": "PEC-CS",
+                    "lecture": 3,
+                    "tutorial": 0,
+                    "practical": 0,
+                    "type": "elective",
+                    "elective_group": "Elective-I"
+                },
+                {
+                    "name": "Effective Technical Communication",
+                    "course_code": "HSMC",
+                    "lecture": 2,
+                    "tutorial": 0,
+                    "practical": 0,
+                    "type": "core",
+                    "elective_group": null
+                },
+                {
+                    "name": "Professional Skills Lab I",
+                    "course_code": "ESC",
+                    "lecture": 0,
+                    "tutorial": 0,
+                    "practical": 2,
+                    "type": "lab",
+                    "elective_group": null
+                },
+                {
+                    "name": "Yoga and Meditation (Audit Course)",
+                    "course_code": "MC",
+                    "lecture": 2,
+                    "tutorial": 0,
+                    "practical": 0,
+                    "type": "core",
+                    "elective_group": null
+                }
+            ]
+        },
+        {
+            "semester": "III",
+            "subjects": [
+                {
+                    "name": "Data Structure and Algorithms",
+                    "course_code": "BCSE3T09",
+                    "lecture": 3,
+                    "tutorial": 3,
+                    "practical": 0,
+                    "type": "core",
+                    "elective_group": null
+                },
+                {
+                    "name": "Data Structure and Algorithms Lab",
+                    "course_code": "BCSE3P09",
+                    "lecture": 0,
+                    "tutorial": 0,
+                    "practical": 2,
+                    "type": "lab",
+                    "elective_group": null
+                },
+                {
+                    "name": "Object Oriented Programming using Java",
+                    "course_code": "BCSE3T10",
+                    "lecture": 3,
+                    "tutorial": 3,
+                    "practical": 0,
+                    "type": "core",
+                    "elective_group": null
+                },
+                {
+                    "name": "Object Oriented Programming using Java Lab",
+                    "course_code": "BCSE3P10",
+                    "lecture": 0,
+                    "tutorial": 0,
+                    "practical": 2,
+                    "type": "lab",
+                    "elective_group": null
+                },
+                {
+                    "name": "Probability Theory and Statistics",
+                    "course_code": "BMD3T11",
+                    "lecture": 2,
+                    "tutorial": 2,
+                    "practical": 0,
+                    "type": "core",
+                    "elective_group": null
+                },
+                {
+                    "name": "Entrepreneurship and Startups",
+                    "course_code": "BHM3T01",
+                    "lecture": 2,
+                    "tutorial": 2,
+                    "practical": 0,
+                    "type": "core",
+                    "elective_group": null
+                },
+                {
+                    "name": "Constitution of India",
+                    "course_code": "BVE2T01",
+                    "lecture": 2,
+                    "tutorial": 2,
+                    "practical": 0,
+                    "type": "core",
+                    "elective_group": null
+                },
+                {
+                    "name": "Community Engagement Project",
+                    "course_code": "BCE3P01",
+                    "lecture": 0,
+                    "tutorial": 0,
+                    "practical": 4,
+                    "type": "project",
+                    "elective_group": null
+                },
+                {
+                    "name": "Data Structure",
+                    "course_code": "BOE3T01",
+                    "lecture": 3,
+                    "tutorial": 3,
+                    "practical": 2,
+                    "type": "elective",
+                    "elective_group": "Open Elective-I"
+                },
+                {
+                    "name": "Python Programming",
+                    "course_code": "BOE3T01",
+                    "lecture": 3,
+                    "tutorial": 3,
+                    "practical": 2,
+                    "type": "elective",
+                    "elective_group": "Open Elective-I"
+                },
+                {
+                    "name": "Object Oriented Concepts",
+                    "course_code": "BOE3T01",
+                    "lecture": 3,
+                    "tutorial": 3,
+                    "practical": 2,
+                    "type": "elective",
+                    "elective_group": "Open Elective-I"
+                }
+            ]
+        },
+        {
+            "semester": "I",
+            "subjects": [
+                {
+                    "name": "Essentials of Chemistry",
+                    "course_code": "BCS1T01",
+                    "lecture": 2,
+                    "tutorial": 0,
+                    "practical": 0,
+                    "type": "core",
+                    "elective_group": null
+                },
+                {
+                    "name": "Essentials of Chemistry Lab",
+                    "course_code": "BCS1P01",
+                    "lecture": 0,
+                    "tutorial": 0,
+                    "practical": 2,
+                    "type": "lab",
+                    "elective_group": null
+                },
+                {
+                    "name": "Applied Algebra",
+                    "course_code": "BCS1T02",
+                    "lecture": 3,
+                    "tutorial": 0,
+                    "practical": 0,
+                    "type": "core",
+                    "elective_group": null
+                },
+                {
+                    "name": "Problem Solving using 'C'",
+                    "course_code": "BCS1T03",
+                    "lecture": 3,
+                    "tutorial": 0,
+                    "practical": 0,
+                    "type": "core",
+                    "elective_group": null
+                },
+                {
+                    "name": "Problem Solving using 'C' Lab",
+                    "course_code": "BCS1P03",
+                    "lecture": 0,
+                    "tutorial": 0,
+                    "practical": 2,
+                    "type": "lab",
+                    "elective_group": null
+                },
+                {
+                    "name": "Basics of Electronics Engineering",
+                    "course_code": "BCS1T04",
+                    "lecture": 3,
+                    "tutorial": 0,
+                    "practical": 0,
+                    "type": "core",
+                    "elective_group": null
+                },
+                {
+                    "name": "Basics of Electronics Engineering Lab",
+                    "course_code": "BCS1P04",
+                    "lecture": 0,
+                    "tutorial": 0,
+                    "practical": 2,
+                    "type": "lab",
+                    "elective_group": null
+                },
+                {
+                    "name": "Web Design Technology",
+                    "course_code": "BVS1P01",
+                    "lecture": 0,
+                    "tutorial": 0,
+                    "practical": 4,
+                    "type": "core",
+                    "elective_group": null
+                },
+                {
+                    "name": "Communication Skills",
+                    "course_code": "BAE1T01",
+                    "lecture": 1,
+                    "tutorial": 0,
+                    "practical": 0,
+                    "type": "core",
+                    "elective_group": null
+                },
+                {
+                    "name": "Communication Skills Lab",
+                    "course_code": "BAE1P01",
+                    "lecture": 0,
+                    "tutorial": 0,
+                    "practical": 2,
+                    "type": "lab",
+                    "elective_group": null
+                },
+                {
+                    "name": "Refer CC",
+                    "course_code": "BCC1P01",
+                    "lecture": 0,
+                    "tutorial": 0,
+                    "practical": 2,
+                    "type": "core",
+                    "elective_group": null
+                }
+            ]
+        },
+        {
+            "semester": "VII",
+            "subjects": [
+                {
+                    "name": "Cryptography & Network Security",
+                    "course_code": "BTECHCSE701T",
+                    "lecture": 3,
+                    "tutorial": 1,
+                    "practical": 0,
+                    "type": "core",
+                    "elective_group": null
+                },
+                {
+                    "name": "Cryptography & Network Security (Practical)",
+                    "course_code": "BTECHCSE701P",
+                    "lecture": 0,
+                    "tutorial": 2,
+                    "practical": 1,
+                    "type": "core",
+                    "elective_group": null
+                },
+                {
+                    "name": "Deep Learning",
+                    "course_code": "BTECHCSE702T",
+                    "lecture": 3,
+                    "tutorial": 0,
+                    "practical": 0,
+                    "type": "elective",
+                    "elective_group": "Program Elective-IV"
+                },
+                {
+                    "name": "Optimization Techniques",
+                    "course_code": "BTECHCSE702T",
+                    "lecture": 3,
+                    "tutorial": 0,
+                    "practical": 0,
+                    "type": "elective",
+                    "elective_group": "Program Elective-IV"
+                },
+                {
+                    "name": "Gaming Architecture",
+                    "course_code": "BTECHCSE702T",
+                    "lecture": 3,
+                    "tutorial": 0,
+                    "practical": 0,
+                    "type": "elective",
+                    "elective_group": "Program Elective-IV"
+                },
+                {
+                    "name": "Natural Language Processing",
+                    "course_code": "BTECHCSE703T",
+                    "lecture": 3,
+                    "tutorial": 0,
+                    "practical": 0,
+                    "type": "elective",
+                    "elective_group": "Program Elective-V"
+                },
+                {
+                    "name": "Big Data Analytics",
+                    "course_code": "BTECHCSE703T",
+                    "lecture": 3,
+                    "tutorial": 0,
+                    "practical": 0,
+                    "type": "elective",
+                    "elective_group": "Program Elective-V"
+                },
+                {
+                    "name": "Mobile Computing",
+                    "course_code": "BTECHCSE703T",
+                    "lecture": 3,
+                    "tutorial": 0,
+                    "practical": 0,
+                    "type": "elective",
+                    "elective_group": "Program Elective-V"
+                },
+                {
+                    "name": "Python Programming",
+                    "course_code": "BTECHCSE704T",
+                    "lecture": 3,
+                    "tutorial": 0,
+                    "practical": 0,
+                    "type": "elective",
+                    "elective_group": "Open Elective-II"
+                },
+                {
+                    "name": "JAVA Programming",
+                    "course_code": "BTECHCSE704T",
+                    "lecture": 3,
+                    "tutorial": 0,
+                    "practical": 0,
+                    "type": "elective",
+                    "elective_group": "Open Elective-II"
+                },
+                {
+                    "name": "Basics of Database Management System",
+                    "course_code": "BTECHCSE704T",
+                    "lecture": 3,
+                    "tutorial": 0,
+                    "practical": 0,
+                    "type": "elective",
+                    "elective_group": "Open Elective-II"
+                },
+                {
+                    "name": "Project",
+                    "course_code": "BTECHCSE705T",
+                    "lecture": 0,
+                    "tutorial": 0,
+                    "practical": 6,
+                    "type": "project",
+                    "elective_group": null
+                },
+                {
+                    "name": "Research Methodology (Audit Course)",
+                    "course_code": "BTECHCSE706T",
+                    "lecture": 2,
+                    "tutorial": 0,
+                    "practical": 0,
+                    "type": "core",
+                    "elective_group": null
+                }
+            ]
+        }
+    ]
+}

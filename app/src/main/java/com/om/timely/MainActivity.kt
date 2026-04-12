@@ -22,11 +22,8 @@ import com.om.timely.ui.theme.TimelyTheme
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
-
-        val splashScreen = installSplashScreen()
-        
-        splashScreen.setKeepOnScreenCondition { false }
 
         // Use light style directly since background is #F0FDF4 (Light Green)
         enableEdgeToEdge(

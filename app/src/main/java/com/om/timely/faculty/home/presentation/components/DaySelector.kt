@@ -44,9 +44,15 @@ private val DAYS = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
 
 private fun getCurrentWeekDates(): Map<String, String> {
     val calendar = Calendar.getInstance()
-    // Find the Monday of the current week
-    while (calendar.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY) {
-        calendar.add(Calendar.DAY_OF_MONTH, -1)
+    
+    // If today is Sunday, shift calendar to the upcoming Monday
+    if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+        calendar.add(Calendar.DAY_OF_MONTH, 1)
+    } else {
+        // Otherwise, move back to the current week's Monday
+        while (calendar.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY) {
+            calendar.add(Calendar.DAY_OF_MONTH, -1)
+        }
     }
     
     val dates = mutableMapOf<String, String>()

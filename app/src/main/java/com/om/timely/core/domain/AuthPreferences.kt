@@ -8,5 +8,8 @@ interface AuthPreferences {
     fun saveRefreshToken(token: String)
     fun getUserRole(): String?
     fun saveUserRole(role: String)
+    /** Persist the user's full department string (e.g. "Computer Science and Engineering"). */
+    fun getDept(): String?
+    fun saveDept(dept: String)
     fun clearTokens()
 }

@@ -9,4 +9,16 @@
     <string name="error_unauthorized">Session expired or unauthorized. Please log in again.</string>
     <string name="error_profile_not_found">Profile Not Found</string>
     <string name="error_profile_update_failed">Failed to Update profile..\n</string>
+    <string name="no_schedule_found">No schedule found for the selected day.</string>
+    <string name="passwords_do_not_match">Password did not match\n</string>
+    <string name="password_too_short">Password length less than 6 digit\'s</string>
+    <string name="password_already_used">Password is alredy used\n</string>
+    <string name="the_request_timed_out">Request timeout\n</string>
+    <string name="no_internet">No internet\n</string>
+    <string name="server_error">something went wrong</string>
+    <string name="unknown_error">unknown error</string>
+    <string name="disk_full">Storage full pls clean up.\n</string>
+    <string name="notification_not_found">Notification not found</string>
+    <string name="error_subject_not_found">No subject found\n</string>
+    <string name="error_conflict">Duplicate error</string>
 </resources>

@@ -40,10 +40,22 @@ class AuthPreferencesImpl(
         }
     }
 
+    override fun getDept(): String? {
+        return sharedPreferences.getString(KEY_USER_DEPT, null)
+    }
+
+    override fun saveDept(dept: String) {
+        sharedPreferences.edit(commit = true) {
+            putString(KEY_USER_DEPT, dept)
+        }
+    }
+
     override fun clearTokens() {
         sharedPreferences.edit(commit = true) {
             remove(KEY_ACCESS_TOKEN)
             remove(KEY_REFRESH_TOKEN)
+            remove(KEY_USER_ROLE)
+            remove(KEY_USER_DEPT) // clear dept so next user's profile is clean
         }
     }
 
@@ -51,5 +63,6 @@ class AuthPreferencesImpl(
         private const val KEY_ACCESS_TOKEN = "jwt_access_token"
         private const val KEY_REFRESH_TOKEN = "jwt_refresh_token"
         private const val KEY_USER_ROLE = "user_role"
+        private const val KEY_USER_DEPT = "user_dept"
     }
 }

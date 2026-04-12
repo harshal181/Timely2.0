@@ -22,7 +22,7 @@ data class FacultyHomeState(
     val isLoading: Boolean = false,
     val profile: FullProfile? = null,
     val selectedDay: String = getTodayDayOfWeek(),
-    val selectedSemester: Int = 4, // Default to sem 4 
+    val selectedSemester: Int = 6, // Default to sem 4
     val scheduleInfo: DayScheduleInfo? = null,
     val error: UiText? = null
 )

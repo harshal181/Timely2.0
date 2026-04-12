@@ -59,13 +59,43 @@ import com.om.timely.profile.presentation.components.ProfileActionItem
 import com.om.timely.profile.presentation.components.ProfileCard
 import com.om.timely.profile.presentation.components.ProfileHeader
 import com.om.timely.profile.presentation.components.ProfileInfoItem
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.size
+import com.om.timely.faculty.edit.presentation.components.AssignedSubjectChip
+import com.om.timely.faculty.edit.presentation.components.ManageSubjectsBottomSheet
+import kotlinx.coroutines.flow.Flow
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.remember
 
 @Composable
 fun ProfileScreen(
     state: ProfileState,
     onAction: (ProfileAction) -> Unit,
+    events: Flow<ProfileEvent>,
     onNavigateToAuth: () -> Unit
 ) {
+    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    
+    LaunchedEffect(key1 = true) {
+        events.collect { event ->
+            when (event) {
+                is ProfileEvent.SignOutSuccess -> {
+                    onNavigateToAuth()
+                }
+                is ProfileEvent.ShowError -> {
+                    snackbarHostState.showSnackbar(event.error.asString(context))
+                }
+                ProfileEvent.PasswordChangeSuccess -> {
+                    snackbarHostState.showSnackbar("Password changed successfully")
+                }
+                ProfileEvent.ProfileUpdateSuccess -> {
+                    snackbarHostState.showSnackbar("Profile updated successfully")
+                }
+            }
+        }
+    }
 
 
     val studentGradient = Brush.linearGradient(
@@ -80,6 +110,7 @@ fun ProfileScreen(
     Scaffold(
         containerColor = screenBackground,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             if (state.profile?.role == UserRole.FACULTY && !state.isLoading) {
                 FloatingActionButton(
@@ -110,13 +141,22 @@ fun ProfileScreen(
         if (state.isChangePasswordSheetVisible) {
             ChangePasswordBottomSheet(
                 state = state.changePasswordState,
-                onPasswordChange = { new, confirm ->
-                    onAction(ProfileAction.OnPasswordDataChange(new, confirm))
+                onPasswordChange = { old,new,confirm ->
+                    onAction(ProfileAction.OnPasswordDataChange(old,new, confirm))
                 },
                 onDismiss = { onAction(ProfileAction.TogglePasswordSheet(false)) },
                 onConfirm = { onAction(ProfileAction.OnUpdatePassword) }
             )
         }
+        
+        ManageSubjectsBottomSheet(
+            visible = state.isAssignSheetVisible,
+            allSubjects = state.allAvailableSubjects,
+            selectedSubjectIds = state.selectedSubjectIds,
+            onToggleSubject = { onAction(ProfileAction.OnSubjectSelectionToggled(it)) },
+            onSave = { onAction(ProfileAction.OnSaveSubjectAssignments) },
+            onDismissRequest = { onAction(ProfileAction.OnDismissManageSubjectsSheet) }
+        )
 
         Box(modifier = Modifier.fillMaxSize()) {
             when {
@@ -129,8 +169,9 @@ fun ProfileScreen(
                         isNotificationsEnabled = state.isNotificationsEnabled,
                         backgroundGradient = if (state.profile.role == UserRole.STUDENT) studentGradient else facultyGradient,
                         onAction = onAction,
-                        onSignOutClick = onNavigateToAuth,
-                        // Pass paddingValues here if you want the bottom content to respect the Nav Bar height
+                        // Dispatch action to ViewModel — it clears tokens, then emits SignOutSuccess
+                        // which the LaunchedEffect above will handle by calling onNavigateToAuth()
+                        onSignOutClick = { onAction(ProfileAction.OnSignOutClick) },
                         modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding())
                     )
                 }
@@ -191,6 +232,53 @@ private fun ProfileContent(
             }
 
             Spacer(modifier = Modifier.height(16.dp))
+
+            // Assigned Subjects (FACULTY ONLY)
+            if (profile.role == UserRole.FACULTY) {
+                ProfileCard(title = "Assigned Subjects") {
+                    if (profile.facultyDetails?.subjects?.isNotEmpty() == true) {
+                        FlowRow(
+                            modifier = Modifier.fillMaxWidth().padding(start = 5.dp, end = 5.dp)
+                        ) {
+                            profile.facultyDetails.subjects.forEach { subject ->
+                                AssignedSubjectChip(subject = subject)
+                            }
+                        }
+                    } else {
+                        Text(
+                            text = "No subjects assigned.",
+                            color = Color.Gray,
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                        )
+                    }
+
+                    Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+                        androidx.compose.material3.OutlinedButton(
+                            onClick = { onAction(ProfileAction.OnManageSubjectsClicked) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            border = BorderStroke(1.dp, themeColor.copy(alpha = 0.5f))
+                        ) {
+                            Icon(
+                                Icons.Outlined.Edit,
+                                contentDescription = "Manage Subjects",
+                                tint = themeColor,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text(
+                                "Manage Subjects",
+                                color = themeColor,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            }
 
             // Account Settings
             ProfileCard(title = "Account Settings") {

@@ -30,6 +30,7 @@ fun TimelineNode(
     dotColor: Color,
     isOngoing: Boolean = false,
     isLast: Boolean = false,
+    extraDragHandle: @Composable (() -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
     Row(
@@ -120,6 +121,10 @@ fun TimelineNode(
         }
 
         Spacer(modifier = Modifier.width(16.dp))
+
+        if (extraDragHandle != null) {
+            extraDragHandle()
+        }
 
         // Content
         Box(

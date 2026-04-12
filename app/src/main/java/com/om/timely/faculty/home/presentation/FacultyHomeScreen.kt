@@ -1,9 +1,9 @@
 package com.om.timely.faculty.home.presentation
 
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -20,12 +20,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -42,25 +45,33 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.om.timely.faculty.home.presentation.components.DaySelector
-import com.om.timely.faculty.home.presentation.components.FacultyHomeHeader
 import com.om.timely.faculty.home.presentation.components.QuickStatsRow
 import com.om.timely.faculty.home.presentation.components.TodayLoadBanner
 import com.om.timely.faculty.home.presentation.components.timeline.ScheduleTimeline
-import kotlinx.coroutines.flow.Flow
+import com.om.timely.shared.presentation.components.EmptyState
+import com.om.timely.shared.presentation.components.ErrorState
+import com.om.timely.shared.presentation.components.HomeHeader
+import kotlinx.coroutines.flow.SharedFlow
+import java.util.Calendar
 
+// 1. ADDED OPT-IN FOR STICKY HEADER
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FacultyHomeScreen(
     state: FacultyHomeState,
     onAction: (FacultyHomeAction) -> Unit,
-    events: Flow<FacultyHomeEvent>
+    events: SharedFlow<FacultyHomeEvent>
 ) {
     val context = LocalContext.current
-    
-    LaunchedEffect(key1 = true) {
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(true) {
         events.collect { event ->
             when (event) {
                 is FacultyHomeEvent.ShowError -> {
-                    Toast.makeText(context, event.error.asString(context), Toast.LENGTH_LONG).show()
+                    snackbarHostState.showSnackbar(
+                        message = event.error.asString(context)
+                    )
                 }
             }
         }
@@ -70,8 +81,9 @@ fun FacultyHomeScreen(
     val greeting = rememberTimeBasedGreeting()
 
     Scaffold(
-        containerColor = Color(0xFFF0FDF4),
-        contentWindowInsets = WindowInsets(0, 0, 0, 0)
+        containerColor = Color.White,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
         Box(
             modifier = Modifier
@@ -81,7 +93,7 @@ fun FacultyHomeScreen(
             Column(modifier = Modifier.fillMaxSize()) {
                 // Fixed Header
                 Box(modifier = Modifier.padding(top = 44.dp)) {
-                    FacultyHomeHeader(
+                    HomeHeader(
                         profile = state.profile,
                         greeting = greeting,
                         onNotificationClick = { onAction(FacultyHomeAction.OnNotificationClick) }
@@ -96,21 +108,16 @@ fun FacultyHomeScreen(
                     LazyColumn(
                         modifier = Modifier.weight(1f)
                     ) {
+                        // 2. FIXED LAZY COLUMN STRUCTURE - Removed the giant wrapping 'item' block
+
                         item {
                             state.scheduleInfo?.dailyStats?.let { dailyStats ->
                                 TodayLoadBanner(stats = dailyStats)
                             }
                         }
 
-                        item {
-                            state.scheduleInfo?.quickStats?.let { quickStats ->
-                                QuickStatsRow(stats = quickStats)
-                            }
-                        }
-
-                        @OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
                         stickyHeader {
-                            Box(modifier = Modifier.background(Color(0xFFF0FDF4))) {
+                            Box(modifier = Modifier.background(Color.White)) {
                                 DaySelector(
                                     selectedDay = state.selectedDay,
                                     onDayChange = { onAction(FacultyHomeAction.OnDaySelected(it)) }
@@ -133,9 +140,9 @@ fun FacultyHomeScreen(
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0xFF1F2937)
                                 )
-                                
+
                                 var expanded by remember { mutableStateOf(false) }
-                                
+
                                 Box {
                                     Row(
                                         modifier = Modifier
@@ -153,13 +160,13 @@ fun FacultyHomeScreen(
                                         )
                                         Spacer(modifier = Modifier.width(4.dp))
                                         Icon(
-                                            imageVector = androidx.compose.material.icons.Icons.Default.ArrowDropDown,
+                                            imageVector = Icons.Default.ArrowDropDown,
                                             contentDescription = "Select Semester",
                                             tint = Color(0xFF059669),
                                             modifier = Modifier.size(16.dp)
                                         )
                                     }
-                                    
+
                                     DropdownMenu(
                                         expanded = expanded,
                                         onDismissRequest = { expanded = false },
@@ -167,15 +174,21 @@ fun FacultyHomeScreen(
                                     ) {
                                         (1..8).forEach { sem ->
                                             DropdownMenuItem(
-                                                text = { 
+                                                text = {
                                                     Text(
                                                         "Semester $sem",
                                                         fontWeight = if (state.selectedSemester == sem) FontWeight.Bold else FontWeight.Normal,
-                                                        color = if (state.selectedSemester == sem) Color(0xFF059669) else Color(0xFF4B5563)
-                                                    ) 
+                                                        color = if (state.selectedSemester == sem) Color(
+                                                            0xFF059669
+                                                        ) else Color(0xFF4B5563)
+                                                    )
                                                 },
                                                 onClick = {
-                                                    onAction(FacultyHomeAction.OnSemesterSelected(sem))
+                                                    onAction(
+                                                        FacultyHomeAction.OnSemesterSelected(
+                                                            sem
+                                                        )
+                                                    )
                                                     expanded = false
                                                 }
                                             )
@@ -187,16 +200,79 @@ fun FacultyHomeScreen(
 
                         // Timeline slots
                         item {
-                            state.scheduleInfo?.timeline?.let { timeline ->
-                                AnimatedVisibility(
-                                    visible = !state.isLoading,
-                                    enter = fadeIn() + slideInHorizontally { it / 4 }
-                                ) {
-                                    ScheduleTimeline(
-                                        timeline = timeline,
-                                        isEditable = true, // Read-only on Home Screen
-                                        modifier = Modifier.padding(top = 16.dp)
+                            when {
+                                // 1. Still loading data
+                                state.isLoading && (state.scheduleInfo == null || state.scheduleInfo.timeline.isNullOrEmpty()) -> {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(top = 40.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        CircularProgressIndicator(color = Color(0xFF059669))
+                                    }
+                                }
+
+                                // 2. Error occurred while fetching
+                                state.error != null -> {
+                                    ErrorState(
+                                        error = state.error.asString(context),
+                                        onRetry = {
+                                            onAction(
+                                                FacultyHomeAction.OnDaySelected(
+                                                    state.selectedDay
+                                                )
+                                            )
+                                        }
                                     )
+                                }
+
+                                // 3. Successfully fetched, but the timeline is empty or null (No Schedule)
+                                state.scheduleInfo == null || state.scheduleInfo.timeline.isNullOrEmpty() -> {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(top = 40.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                            Text(
+                                                text = "No schedule found for ${state.selectedDay}",
+                                                color = Color(0xFF4B5563),
+                                                fontSize = 16.sp,
+                                                fontWeight = FontWeight.SemiBold
+                                            )
+                                            Spacer(modifier = Modifier.height(8.dp))
+                                            Text(
+                                                text = "Tap to retry",
+                                                color = Color(0xFF059669),
+                                                fontSize = 14.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                modifier = Modifier
+                                                    .clickable {
+                                                        onAction(
+                                                            FacultyHomeAction.OnDaySelected(
+                                                                state.selectedDay
+                                                            )
+                                                        )
+                                                    }
+                                                    .padding(8.dp)
+                                            )
+                                        }
+                                    }
+                                }
+
+                                else -> {
+                                    AnimatedVisibility(
+                                        visible = !state.isLoading,
+                                        enter = fadeIn() + slideInHorizontally { it / 4 }
+                                    ) {
+                                        ScheduleTimeline(
+                                            timeline = state.scheduleInfo.timeline,
+                                            isEditable = false, // Read-only on Home Screen
+                                            modifier = Modifier.padding(top = 16.dp)
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -213,7 +289,7 @@ fun FacultyHomeScreen(
 
 @Composable
 private fun rememberTimeBasedGreeting(): String {
-    val h = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
+    val h = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
     return when {
         h < 12 -> "Good morning"
         h < 17 -> "Good afternoon"

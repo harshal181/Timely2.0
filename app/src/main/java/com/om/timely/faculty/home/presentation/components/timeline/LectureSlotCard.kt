@@ -69,7 +69,7 @@ fun LectureSlotCard(
                 verticalAlignment = Alignment.Top
             ) {
                 Text(
-                    text = if (slot.subjectName.length > 20) slot.subjectCode else slot.subjectName,
+                    text = slot.subjectName,
                     color = accentColor,
                     fontSize = if (slot.subjectName.length > 20) 14.sp else 16.sp,
                     fontWeight = FontWeight.ExtraBold,

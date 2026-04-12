@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.om.timely" />
+                  <option name="mobileSdkAppId" value="1:726953060756:android:2049759ecb4dcefa3b0781" />
+                  <option name="projectId" value="timely-notifications-d980e" />
+                  <option name="projectNumber" value="726953060756" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

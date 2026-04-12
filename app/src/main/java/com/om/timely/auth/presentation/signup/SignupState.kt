@@ -30,5 +30,6 @@ data class SignupState(
     
     // Dropdown States
     val isDepartmentDropdownExpanded: Boolean = false,
-    val isCourseDropdownExpanded: Boolean = false
+    val isCourseDropdownExpanded: Boolean = false,
+    val isBatchDropdownExpanded: Boolean = false
 )

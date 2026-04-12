@@ -9,6 +9,7 @@ import com.om.timely.profile.data.dto.StudentOutDto
 import com.om.timely.profile.data.dto.UpdateUserDto
 import com.om.timely.profile.domain.model.FacultyProfile
 import com.om.timely.profile.domain.model.FullProfile
+import com.om.timely.profile.domain.model.ProfileSubject
 import com.om.timely.profile.domain.model.StudentProfile
 
 fun FullProfileOutDto.toDomain(): FullProfile {
@@ -16,17 +17,22 @@ fun FullProfileOutDto.toDomain(): FullProfile {
         id = id,
         name = name,
         email = email,
-        role = try { UserRole.valueOf(role.uppercase()) } catch(e: Exception) { UserRole.STUDENT },
+        role = try {
+            UserRole.valueOf(role.uppercase())
+        } catch (e: Exception) {
+            UserRole.STUDENT
+        },
         studentDetails = studentDetails?.toDomain(),
-        facultyDetails = facultyDetails?.toDomain()
+        facultyDetails = facultyDetails?.toDomain(),
+        dept = dept
     )
 }
-
 fun FullProfile.toDto(): UpdateUserDto {
     return UpdateUserDto(
         name = name,
         studentDetails = studentDetails?.toDto(),
-        facultyDetails = facultyDetails?.toDto()
+        facultyDetails = facultyDetails?.toDto(),
+        dept = dept
     )
 }
 
@@ -58,6 +64,8 @@ fun FacultyOutDto.toDomain(): FacultyProfile {
     return FacultyProfile(
         facId = facId,
         designation = designation,
-        office = office
+        office = office,
+        subjects = subjects.map { ProfileSubject(id = it.id, name = it.name, code = it.code, colorArgb = it.colorArgb) },
+        department = dept
     )
 }

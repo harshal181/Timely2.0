@@ -38,6 +38,7 @@ class SignupViewModel(
 
             is SignupAction.OnToggleDepartmentDropdown -> _state.update { it.copy(isDepartmentDropdownExpanded = action.isExpanded) }
             is SignupAction.OnToggleCourseDropdown -> _state.update { it.copy(isCourseDropdownExpanded = action.isExpanded) }
+            is SignupAction.OnToggleBatchDropdown -> _state.update { it.copy(isBatchDropdownExpanded = action.isExpanded) }
 
             is SignupAction.OnStudentIdChanged -> _state.update { it.copy(studentId = action.id) }
             is SignupAction.OnSemesterChanged -> _state.update { it.copy(semester = action.semester) }
@@ -87,19 +88,20 @@ class SignupViewModel(
                     pass = currentState.password,
                     facultyId = currentState.facultyId,
                     designation = currentState.designation,
-                    office = currentState.department
+                    office = currentState.department,
+                    dept = currentState.department
                 )
             }
 
             when (result) {
                 is Result.Success -> {
                     _state.update { it.copy(isLoading = false) }
-                    // You might want to navigate to login instead, or auto-login!
                     eventChannel.send(SignupEvent.SignupSuccess("auth_graph"))
                 }
                 is Result.Error -> {
+                    // Backend errors go to snackbar via event — NOT into state
                     val errorMessage = result.error.asUiText()
-                    _state.update { it.copy(isLoading = false, error = errorMessage) }
+                    _state.update { it.copy(isLoading = false) }
                     eventChannel.send(SignupEvent.SignupError(errorMessage))
                 }
             }

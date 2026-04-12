@@ -10,8 +10,8 @@ import org.koin.dsl.module
 
 val authModule = module {
     single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
-    
-    viewModel { SplashViewModel(get()) }
-    viewModel { LoginViewModel(get()) }
+
+    viewModel { SplashViewModel(get(), get(), get()) } // AuthRepository, ProfileRepository, AuthPreferences
+    viewModel { LoginViewModel(get(), get()) }          // AuthRepository, ProfileRepository
     viewModel { SignupViewModel(get()) }
 }

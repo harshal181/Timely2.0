@@ -8,7 +8,8 @@ data class FullProfile(
     val email: String,
     val role: UserRole,
     val studentDetails: StudentProfile? = null,
-    val facultyDetails: FacultyProfile? = null
+    val facultyDetails: FacultyProfile? = null,
+    val dept: String? = null
 )
 
 data class StudentProfile(
@@ -22,5 +23,14 @@ data class StudentProfile(
 data class FacultyProfile(
     val facId: String,
     val designation: String,
-    val office: String
+    val office: String,
+    val subjects: List<ProfileSubject> = emptyList(),
+    val department: String = ""
+)
+
+data class ProfileSubject(
+    val id: Int,
+    val name: String,
+    val code: String,
+    val colorArgb: Long
 )

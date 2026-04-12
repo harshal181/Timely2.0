@@ -9,6 +9,7 @@ import com.om.timely.profile.domain.model.StudentProfile
 
 interface ProfileRepository {
     suspend fun getProfile(): Result<FullProfile, ProfileError>
+    suspend fun getAllFaculties(): Result<List<FullProfile>, ProfileError>
     suspend fun updateStudent(
         name: String,
         semester: Int,
@@ -20,6 +21,8 @@ interface ProfileRepository {
         designation: String,
         office: String
     ): Result<FullProfile,ProfileError>
+    suspend fun assignSubject(subjectId: Int): Result<Unit, ProfileError>
+    suspend fun unassignSubject(subjectId: Int): Result<Unit, ProfileError>
     suspend fun changePassword(oldPassword: String, newPassword: String): Result<Unit,ProfileError>
     suspend fun subscribeToNotifications(): Result<Unit, ProfileError>
     suspend fun logout()

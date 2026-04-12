@@ -30,7 +30,6 @@ sealed class BottomNavItem(
 
 val studentBottomNavItems = listOf(
     BottomNavItem.Home,
-    BottomNavItem.Calendar,
     BottomNavItem.Alerts,
     BottomNavItem.Profile
 )

@@ -1,6 +1,7 @@
 package com.om.timely.profile.presentation
 
 import com.om.timely.core.presentation.UiText
+import com.om.timely.faculty.subjects.domain.model.Subject
 import com.om.timely.profile.domain.model.FullProfile
 
 data class ProfileState(
@@ -11,12 +12,18 @@ data class ProfileState(
     val changePasswordState: ChangePasswordState = ChangePasswordState(),
     val isEditSheetVisible: Boolean = false,
     val isChangePasswordSheetVisible: Boolean = false,
-    val isNotificationsEnabled: Boolean = true // Mocked for now
+    val isNotificationsEnabled: Boolean = true, // Mocked for now
+
+    // Subject Mapping Architecture State
+    val isAssignSheetVisible: Boolean = false,
+    val allAvailableSubjects: List<Subject> = emptyList(),
+    val selectedSubjectIds: Set<Int> = emptySet() // Checkbox state buffer
 )
 
 data class ChangePasswordState(
     val oldPassword: String = "",
-    val newPassword: String = ""
+    val newPassword: String = "",
+    val confirmPassword: String = ""
 )
 data class EditProfileState(
     val name: String = "",

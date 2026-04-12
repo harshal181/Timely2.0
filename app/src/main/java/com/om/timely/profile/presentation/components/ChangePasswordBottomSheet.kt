@@ -42,11 +42,12 @@ import com.om.timely.profile.presentation.ChangePasswordState
 @Composable
 fun ChangePasswordBottomSheet(
     state: ChangePasswordState,
-    onPasswordChange: (String, String) -> Unit, // Passes new and confirm for validation
+    onPasswordChange: (String, String ,String) -> Unit, // Passes new and confirm for validation
     onDismiss: () -> Unit,
     onConfirm: () -> Unit
 ) {
     // Local state for the confirmation field specifically
+    var newPassword by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
 
     ModalBottomSheet(
@@ -86,7 +87,7 @@ fun ChangePasswordBottomSheet(
                 value = state.oldPassword,
                 icon = Icons.Outlined.Lock
             ) {
-                onPasswordChange(it, confirmPassword)
+                onPasswordChange(it, newPassword ,confirmPassword)
             }
 
             // New Password
@@ -95,28 +96,31 @@ fun ChangePasswordBottomSheet(
                 value = state.newPassword,
                 icon = Icons.Outlined.LockOpen
             ) {
-                onPasswordChange(it, confirmPassword)
+                onPasswordChange(state.oldPassword,it, confirmPassword)
             }
 
             // Confirm New Password (UI only check)
             EditField(
                 label = "Confirm New Password",
-                value = confirmPassword,
+                value = state.confirmPassword, // Use state from ViewModel
                 icon = Icons.Outlined.Shield
-            ) {
-                confirmPassword = it
-                onPasswordChange(state.newPassword, it)
+            ) { newValue ->
+                // Pass all three current values to the callback to update the state correctly
+                onPasswordChange(
+                    state.oldPassword,
+                    state.newPassword,
+                    newValue
+                )
             }
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Update Button
-            val isMatching = state.newPassword == confirmPassword && state.newPassword.isNotEmpty()
+
+
 
             Button(
                 onClick = onConfirm,
                 modifier = Modifier.fillMaxWidth().height(56.dp),
-                enabled = isMatching,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF2563EB), // Blue for Security
                     disabledContainerColor = Color(0xFFE5E7EB)

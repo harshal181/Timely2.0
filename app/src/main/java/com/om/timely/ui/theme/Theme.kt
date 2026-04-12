@@ -1,54 +1,57 @@
 package com.om.timely.ui.theme
 
-import android.app.Activity
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+// Light scheme wired to Timely brand colors
+private val LightColorScheme = lightColorScheme(
+    primary = BrandColors.PrimaryPurple,          // #7C3AED
+    onPrimary = Color.White,
+    secondary = BrandColors.SecondaryPurple,       // #6366F1
+    onSecondary = Color.White,
+    tertiary = BrandColors.LightPurple,            // #9333EA
+    onTertiary = Color.White,
+    background = BrandColors.BgOffWhite,           // #FAFAFA
+    onBackground = BrandColors.TextDark,           // #1F2937
+    surface = BrandColors.BgWhite,                 // #FFFFFF
+    onSurface = BrandColors.TextDark,              // #1F2937
+    surfaceVariant = BrandColors.CardGrayLight,    // #F9FAFB
+    onSurfaceVariant = BrandColors.TextGray,       // #6B7280
+    outline = BrandColors.BorderStandard,          // #E5E7EB
+    outlineVariant = BrandColors.BorderLight,      // #F3F4F6
+    error = BrandColors.Error,                     // #EF4444
+    onError = Color.White,
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
+// Dark scheme — keeps purple brand identity on dark backgrounds
+private val DarkColorScheme = darkColorScheme(
+    primary = BrandColors.PurpleTint,
     onPrimary = Color.White,
+    secondary = BrandColors.SecondaryPurple,
     onSecondary = Color.White,
+    tertiary = BrandColors.LightPurple,
     onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    background = Color(0xFF0F0F0F),
+    onBackground = Color(0xFFE5E7EB),
+    surface = Color(0xFF1C1C1E),
+    onSurface = Color(0xFFE5E7EB),
+    surfaceVariant = Color(0xFF2C2C2E),
+    onSurfaceVariant = BrandColors.TextLightGray,
+    outline = Color(0xFF3A3A3C),
+    error = BrandColors.Error,
+    onError = Color.White,
 )
 
 @Composable
 fun TimelyTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
+    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
 
     MaterialTheme(
         colorScheme = colorScheme,

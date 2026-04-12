@@ -22,6 +22,7 @@ interface AuthRepository {
         email: String,
         pass: String,
         facultyId: String,
+        dept: String,
         designation: String,
         office: String
     ): Result<User, AuthError>

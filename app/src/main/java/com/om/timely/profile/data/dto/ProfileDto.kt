@@ -12,15 +12,16 @@ data class FullProfileOutDto(
     @SerialName("created_at") val createdAt: String?,
     @SerialName("updated_at") val updatedAt: String? = null,
     @SerialName("student_details") val studentDetails: StudentOutDto? = null,
-    @SerialName("faculty_details") val facultyDetails: FacultyOutDto? = null
+    @SerialName("faculty_details") val facultyDetails: FacultyOutDto? = null,
+    val dept: String? = null
 )
 
 @Serializable
 data class UpdateUserDto(
     val name: String,
     @SerialName("student_details") val studentDetails: StudentDetailsDto? = null,
-    @SerialName("faculty_details") val facultyDetails: FacultyDetailDto? = null
-
+    @SerialName("faculty_details") val facultyDetails: FacultyDetailDto? = null,
+    val dept: String? = null
 )
 
 @Serializable
@@ -52,5 +53,24 @@ data class FacultyOutDto(
     @SerialName("user_id") val userId: String,
     @SerialName("fac_id") val facId: String,
     val designation: String,
-    val office: String
+    val office: String,
+    val subjects: List<SubjectDto> = emptyList(),
+    val dept: String = ""
 )
+
+@Serializable
+data class SubjectDto(
+    val id: Int,
+    val name: String,
+    val code: String = "",
+    @SerialName("color_argb")
+    val colorArgb: Long = 4286743295L // Default fallback
+)
+
+@Serializable
+data class ChangePasswordRequest(
+    @SerialName("current_password") val oldPassword: String,
+    @SerialName("new_password") val newPassword: String
+)
+
+

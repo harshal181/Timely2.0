@@ -7,6 +7,7 @@ import com.om.timely.auth.data.dto.UserOutDto
 import com.om.timely.auth.domain.AuthResult
 import com.om.timely.auth.domain.User
 import com.om.timely.auth.domain.UserRole
+import kotlin.concurrent.thread
 
 fun CreateUserResultDto.toDomain(): User {
     return User(
@@ -14,6 +15,7 @@ fun CreateUserResultDto.toDomain(): User {
         email = this.email,
         // Assuming your backend sends "STUDENT" or "FACULTY"
         role = UserRole.valueOf(this.role.uppercase()),
+        dept = this.dept,
         createdAt = this.createdAt,
         updatedAt = this.updatedAt
     )
@@ -32,6 +34,7 @@ fun UserOutDto.toDomain(): User {
         email = this.email,
         // Assuming
         role = UserRole.valueOf(this.role.toUpperCase()),
+        dept = dept,
         createdAt = createdAt,
         updatedAt = updatedAt
     )

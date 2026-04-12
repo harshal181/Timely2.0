@@ -111,7 +111,8 @@ class AuthRepositoryImpl(
             studentDetails = StudentCreateDto(
                 studId = studId, semester = semester.toInt(),
                 division = divison, batch = batch, course = course
-            )
+            ),
+            dept = course
         )
 
         // 2. Make the safe network call
@@ -136,6 +137,7 @@ class AuthRepositoryImpl(
         email: String,
         pass: String,
         facultyId: String,
+        dept: String,
         designation: String,
         office: String
     ): Result<User, AuthError> {
@@ -143,11 +145,12 @@ class AuthRepositoryImpl(
             name = name, email = email, password = pass, role = "FACULTY",
             facultyDetails = FacultyCreateDto(
                 facId = facultyId, designation = designation, office = office
-            )
+            ),
+            dept = dept
         )
 
         val response = safeCall<CreateUserResultDto> {
-            httpClient.post("${BuildConfig.BASE_URL}/auth/signup") {
+            httpClient.post("${BuildConfig.BASE_URL}/api/auth/signup") {
                 contentType(ContentType.Application.Json)
                 setBody(requestDto)
             }

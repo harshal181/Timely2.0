@@ -15,6 +15,7 @@ data class User(
     val name: String,
     val email: String,
     val role: UserRole,
+    val dept: String,
     val createdAt: String? = null,
     val updatedAt: String? = null
 )

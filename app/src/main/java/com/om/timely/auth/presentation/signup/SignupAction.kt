@@ -13,6 +13,7 @@ sealed interface SignupAction : Action {
     // Dropdown toggles
     data class OnToggleDepartmentDropdown(val isExpanded: Boolean) : SignupAction
     data class OnToggleCourseDropdown(val isExpanded: Boolean) : SignupAction
+    data class OnToggleBatchDropdown(val isExpanded: Boolean) : SignupAction
 
     // Student
     data class OnStudentIdChanged(val id: String) : SignupAction

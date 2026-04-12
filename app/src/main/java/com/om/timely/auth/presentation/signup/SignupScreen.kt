@@ -1,6 +1,5 @@
 package com.om.timely.auth.presentation.signup
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
@@ -16,10 +15,13 @@ import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -50,13 +52,15 @@ fun SignupScreen(
 ) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(key1 = true) {
         events.collect { event ->
             when (event) {
                 is SignupEvent.SignupSuccess -> onSignupSuccess(event.route)
                 is SignupEvent.SignupError -> {
-                    Toast.makeText(context, event.error.asString(context), Toast.LENGTH_LONG).show()
+                    // Show backend errors (email exists, network failure, etc.) as a Snackbar
+                    snackbarHostState.showSnackbar(event.error.asString(context))
                 }
             }
         }
@@ -65,7 +69,8 @@ fun SignupScreen(
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = Color(0xFFF9FAFB),
-        contentWindowInsets = WindowInsets(0, 0, 0, 0)
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -157,7 +162,7 @@ fun SignupScreen(
                         leadingIcon = Icons.Outlined.School,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next)
                     )
-                    
+
                     AuthDropdown(
                         label = "Department",
                         hint = "Select department",
@@ -167,7 +172,7 @@ fun SignupScreen(
                         onExpandedChange = { onAction(SignupAction.OnToggleDepartmentDropdown(it)) },
                         onOptionSelected = { onAction(SignupAction.OnDepartmentChanged(it)) }
                     )
-                    
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -186,18 +191,20 @@ fun SignupScreen(
                             label = "Division",
                             hint = "A",
                             modifier = Modifier.weight(1f),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next)
-                        )
-                        AuthTextField(
-                            value = state.batch,
-                            onValueChange = { onAction(SignupAction.OnBatchChanged(it)) },
-                            label = "Batch",
-                            hint = "B1",
-                            modifier = Modifier.weight(1f),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
                             keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
                         )
                     }
+
+                    AuthDropdown(
+                        label = "Batch",
+                        hint = "Select batch",
+                        selectedValue = state.batch,
+                        options = listOf("Batch 1", "Batch 2"),
+                        isExpanded = state.isBatchDropdownExpanded,
+                        onExpandedChange = { onAction(SignupAction.OnToggleBatchDropdown(it)) },
+                        onOptionSelected = { onAction(SignupAction.OnBatchChanged(it)) }
+                    )
 
                 } else {
                     AuthTextField(
@@ -220,19 +227,22 @@ fun SignupScreen(
                         label = "Department / Office",
                         hint = "Select department",
                         selectedValue = state.department,
-                        options = listOf("Computer Science", "Information Technology", "Electronics", "Mechanical"),
+                        options = listOf("Computer Engineering", "Civil Engineering", "Electronics", "Mechanical"),
                         isExpanded = state.isDepartmentDropdownExpanded,
                         onExpandedChange = { onAction(SignupAction.OnToggleDepartmentDropdown(it)) },
                         onOptionSelected = { onAction(SignupAction.OnDepartmentChanged(it)) }
                     )
                 }
 
+                // Inline validation error — for local field validation only (name blank, bad format, etc.)
+                // Backend errors are shown as Snackbars via the event channel, not here.
                 if (state.error != null) {
                     Text(
                         text = state.error.asString(context),
-                        color = Color.Red,
+                        color = Color(0xFFDC2626),
                         modifier = Modifier.align(Alignment.CenterHorizontally),
-                        fontSize = 14.sp
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium
                     )
                 }
 
@@ -258,7 +268,7 @@ fun SignupScreen(
                         color = Color(0xFF6B7280),
                         fontSize = 14.sp
                     )
-                    TextButton(onClick = { 
+                    TextButton(onClick = {
                         onAction(SignupAction.OnSignInClick)
                         onNavigateLogin()
                     }) {

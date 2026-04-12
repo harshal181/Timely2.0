@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.om.timely.core.domain.util.Result
 import com.om.timely.core.presentation.asUiText
+import com.om.timely.faculty.home.domain.error.asUiText
 import com.om.timely.faculty.home.domain.repository.FacultyHomeRepository
 import com.om.timely.profile.domain.error.asUiText
 import com.om.timely.profile.domain.repository.ProfileRepository

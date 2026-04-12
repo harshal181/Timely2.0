@@ -32,9 +32,12 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.om.timely.R
 import com.om.timely.faculty.home.domain.model.schedule.PracticalSlot
 
 @Composable
@@ -62,7 +65,7 @@ fun PracticalSlotCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 20.dp, end = 16.dp, top = 16.dp, bottom = 16.dp)
+                .padding(start = 18.dp, end = 16.dp, top = 16.dp, bottom = 16.dp)
         ) {
             // Header: Icon, Title, Time, Edit
             Row(
@@ -76,10 +79,10 @@ fun PracticalSlotCard(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Outlined.Science, // Or Beaker placeholder
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_code), // Or Beaker placeholder
                         contentDescription = null,
                         tint = Color.White,
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(16.dp)
                     )
                 }
 
@@ -89,7 +92,7 @@ fun PracticalSlotCard(
                     Text(
                         text = slot.title.uppercase(),
                         color = accentColor,
-                        fontSize = 14.sp,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.ExtraBold,
                         letterSpacing = 0.5.sp
                     )
@@ -99,6 +102,7 @@ fun PracticalSlotCard(
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium
                     )
+
                 }
 
                 if (isEditable && onEditClick != null) {
@@ -121,12 +125,11 @@ fun PracticalSlotCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
 
-            // Dashed Divider exactly like Figma
-            DashedDivider(color = accentColor.copy(alpha = 0.4f))
+//            // Dashed Divider exactly like Figma
+//            DashedDivider(color = accentColor.copy(alpha = 0.4f))
 
-            Spacer(modifier = Modifier.height(12.dp))
+//            Spacer(modifier = Modifier.height(12.dp))
 
             // Batches Column
             slot.batches.forEachIndexed { index, batch ->
