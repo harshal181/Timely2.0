@@ -12,6 +12,7 @@ enum class NetworkError: Error {
     UNAUTHORIZED,
     BAD_REQ,
     NOT_FOUND,
-    BAD_REQUEST
+    BAD_REQUEST,
+    SERIALIZATION
 }
 

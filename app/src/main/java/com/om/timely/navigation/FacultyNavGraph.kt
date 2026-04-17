@@ -53,6 +53,17 @@ fun NavGraphBuilder.facultyNavGraph(navController: NavController) {
             )
         }
         
+        composable(Screen.Faculty.TimetableWizard.route) {
+            val viewModel: com.om.timely.faculty.timetable_generation.presentation.TimetableGenerationViewModel = org.koin.androidx.compose.koinViewModel()
+            val state by viewModel.state.collectAsStateWithLifecycle()
+            
+            com.om.timely.faculty.timetable_generation.presentation.screens.TimetableGenerationWizardScreen(
+                state = state,
+                onAction = viewModel::onAction,
+                events = viewModel.events,
+                rootNavController = navController
+            )
+        }
 
     }
 }

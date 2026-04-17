@@ -35,6 +35,7 @@ sealed interface FacultyEditEvent {
     data class ShowError(val error: com.om.timely.core.presentation.UiText) : FacultyEditEvent
     object NavigateToSyllabus : FacultyEditEvent
     object NavigateToSubjects : FacultyEditEvent
+    object NavigateToGenerate : FacultyEditEvent
 }
 
 class FacultyEditViewModel(
@@ -234,7 +235,9 @@ class FacultyEditViewModel(
                 }
             }
             FacultyEditAction.OnGenerateClicked -> {
-                // Future Navigation handling
+                viewModelScope.launch {
+                    _events.emit(FacultyEditEvent.NavigateToGenerate)
+                }
             }
             FacultyEditAction.OnSubjectsClicked -> {
                 viewModelScope.launch {

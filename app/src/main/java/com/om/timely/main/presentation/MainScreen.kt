@@ -161,6 +161,9 @@ fun MainScreen(
                             },
                             onNavigateToSubjects = {
                                 bottomNavController.navigate("subject_management")
+                            },
+                            onNavigateToGenerate = {
+                                rootNavController.navigate(Screen.Faculty.TimetableWizard.route)
                             }
                         )
                     }

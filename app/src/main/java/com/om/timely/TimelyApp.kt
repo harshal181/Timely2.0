@@ -10,6 +10,7 @@ import com.om.timely.faculty.syllabus_extractor.di.syllabusExtractorModule
 import com.om.timely.profile.di.profileModule
 import com.om.timely.student.home.di.studentHomeModule
 import com.om.timely.shared.notifications.di.notificationModule
+import com.om.timely.faculty.timetable_generation.di.timetableGenerationModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -27,7 +28,7 @@ class TimelyApp : Application() {
         startKoin {
             androidLogger()
             androidContext(this@TimelyApp)
-            modules(coreModule, databaseModule, authModule, profileModule, facultyHomeModule, studentHomeModule, subjectManagementModule, syllabusExtractorModule, notificationModule)
+            modules(coreModule, databaseModule, authModule, profileModule, facultyHomeModule, studentHomeModule, subjectManagementModule, syllabusExtractorModule, notificationModule, timetableGenerationModule)
         }
         
         try {

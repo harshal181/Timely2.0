@@ -71,7 +71,8 @@ fun FacultyEditScreen(
     onAction: (FacultyEditAction) -> Unit,
     events: Flow<FacultyEditEvent>,
     onNavigateToSyllabus: () -> Unit,
-    onNavigateToSubjects: () -> Unit
+    onNavigateToSubjects: () -> Unit,
+    onNavigateToGenerate: () -> Unit
 ) {
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
@@ -87,6 +88,9 @@ fun FacultyEditScreen(
                     }
                     is FacultyEditEvent.NavigateToSubjects -> {
                         onNavigateToSubjects()
+                    }
+                    is FacultyEditEvent.NavigateToGenerate -> {
+                        onNavigateToGenerate()
                     }
                 }
             }
