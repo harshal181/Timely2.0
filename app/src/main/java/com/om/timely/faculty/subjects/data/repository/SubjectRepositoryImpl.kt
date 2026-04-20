@@ -21,7 +21,6 @@ import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
-import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
@@ -85,17 +84,15 @@ class SubjectRepositoryImpl(
         }
     }
 
-    override fun getAllSubjects(dept: String): Flow<List<Subject>> {
-        return subjectDao.getAllSubjectsByDeptFlow(dept).map { entityList ->
+    override fun getAllSubjects(): Flow<List<Subject>> {
+        return subjectDao.getAllSubjectsFlow().map { entityList ->
             entityList.map { it.toDomain() }
         }
     }
 
-    override suspend fun fetchAllSubjects(dept: String): Result<Unit, SubjectError> {
+    override suspend fun fetchAllSubjects(): Result<Unit, SubjectError> {
         return safeCall<List<SubjectDto>> {
-            httpClient.get("${BuildConfig.BASE_URL}/api/subjects/") {
-                parameter("dept", dept)
-            }
+            httpClient.get("${BuildConfig.BASE_URL}/api/subjects/all")
         }.map { dtoList ->
             val entities = dtoList.map { it.toDomain().toEntity() }
             

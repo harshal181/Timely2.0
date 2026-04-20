@@ -12,6 +12,7 @@ data class FacultyEditState(
     val isLoading: Boolean = false,
     val profile: FullProfile? = null,
     val selectedDay: String = getTodayDayOfWeek(),
+    val selectedDayId: Int? = null,
     val selectedSemester: Int = 6,
     val timeline: List<ScheduleSlot> = emptyList(),
     val originalTimeline: List<ScheduleSlot> = emptyList(), // Cached for bulk-lock logic
@@ -22,7 +23,7 @@ data class FacultyEditState(
     val selectedSubjectIds: Set<Int> = emptySet(), // Checkbox state buffer
     
     // Lock / Sync State
-    val isLocked: Boolean = true,
+    val isLocked: Boolean = false,
     
     // Slot Edit State
     val editSlotState: EditSlotState = EditSlotState(),

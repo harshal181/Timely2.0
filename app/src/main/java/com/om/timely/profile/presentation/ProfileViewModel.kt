@@ -137,14 +137,14 @@ class ProfileViewModel(
 
             // Background observe all available subjects globally
             viewModelScope.launch {
-                subjectRepository.getAllSubjects("CSE").collect { subjectsList ->
+                subjectRepository.getAllSubjects().collect { subjectsList ->
                     _state.update { it.copy(allAvailableSubjects = subjectsList) }
                 }
             }
             
             // Trigger network sync for subjects into DB
             viewModelScope.launch {
-                subjectRepository.fetchAllSubjects("CSE")
+                subjectRepository.fetchAllSubjects()
             }
         }
     }

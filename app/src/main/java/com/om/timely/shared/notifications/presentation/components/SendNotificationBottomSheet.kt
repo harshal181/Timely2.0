@@ -177,7 +177,7 @@ fun SendNotificationBottomSheet(
                             onDismissRequest = { isTypeMenuExpanded = false },
                             modifier = Modifier.background(BrandColors.BgWhite)
                         ) {
-                            NotificationType.values().forEach { type ->
+                            NotificationType.entries.forEach { type ->
                                 val formattedText = type.name.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() }
                                 DropdownMenuItem(
                                     text = { Text(formattedText) },

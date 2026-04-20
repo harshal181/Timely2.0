@@ -13,3 +13,11 @@ data class NotificationDto(
     val isRead: Boolean,
     val isSentByMe: Boolean
 )
+
+@Serializable
+data class NotificationSendRequestDto(
+    val title: String,
+    val message: String,
+    val msgType: String,
+    val topic: String
+)

@@ -6,6 +6,5 @@ enum class NotificationType {
     FACULTY_CHANGE,
     EXTRA_CLASS,
     GENERAL_NOTICE,
-    HOLIDAY_NOTICE,
-    PUSH
+    HOLIDAY_NOTICE
 }

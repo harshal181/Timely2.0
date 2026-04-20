@@ -3,8 +3,14 @@ package com.om.timely.faculty.timetable_generation.presentation.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,14 +24,12 @@ import androidx.compose.ui.unit.sp
 import com.om.timely.faculty.timetable_generation.domain.model.SlotKind
 import com.om.timely.faculty.timetable_generation.domain.model.TimetableSlot
 
-// ── Dimensions (single source of truth) ──────────────────────────────────────
-val SLOT_ROW_HEIGHT: Dp = 95.dp
-val ROW_GAP: Dp = 4.dp
-// Practical card visually spans 2 contiguous rows + the gap between them
-// Practical card must span: row1_content + row1_gap + row2_content + row2_gap
+// ── Dimensions ──────────────────────────────────────────────────────────────
+val SLOT_ROW_HEIGHT: Dp = 140.dp
+val ROW_GAP: Dp = 6.dp
 val PRACTICAL_CARD_HEIGHT: Dp = SLOT_ROW_HEIGHT * 2 + ROW_GAP * 2
 
-// ── Colour palette ────────────────────────────────────────────────────────────
+// ── Color palette ────────────────────────────────────────────────────────────
 data class SlotPalette(val bg: Color, val border: Color, val accent: Color, val sub: Color)
 
 fun slotPalette(kind: SlotKind): SlotPalette = when (kind) {
@@ -43,92 +47,122 @@ fun slotPalette(kind: SlotKind): SlotPalette = when (kind) {
     )
 }
 
-// ── Shared inner content builder ──────────────────────────────────────────────
+// ── Shared Content Builder ────────────────────────────────────────────────────
 @Composable
 private fun SlotContent(
     slot: TimetableSlot,
-    palette: SlotPalette,
-    scale: Float
+    palette: SlotPalette
 ) {
     val isPractical = slot.slotKind == SlotKind.PRACTICAL || slot.slotKind == SlotKind.WHOLE_CLASS_PRACTICAL
-    val paddingHorizontal = (10f * scale).coerceAtLeast(4f).dp
-    val paddingVertical = (8f * scale).coerceAtLeast(2f).dp
-    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = paddingHorizontal, vertical = paddingVertical),
-           verticalArrangement = Arrangement.spacedBy((3f * scale).dp)) {
-
-        // Kind pill
-        Box(
-            modifier = Modifier
-                .background(palette.border.copy(alpha = 0.3f), RoundedCornerShape((4f * scale).dp))
-                .padding(horizontal = (6f * scale).dp, vertical = (1f * scale).dp)
+    val assignments = slot.assignments
+    
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 12.dp, vertical = 10.dp)
+    ) {
+        // 1. Header (Tag + Drag Handle)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text       = if (isPractical) "Practical  •  2 hrs" else "Lecture",
-                color      = palette.accent,
-                fontSize   = (11f * scale).coerceAtLeast(8f).sp,
-                fontWeight = FontWeight.Medium
+            Box(
+                modifier = Modifier
+                    .background(palette.border.copy(alpha = 0.4f), RoundedCornerShape(4.dp))
+                    .padding(horizontal = 6.dp, vertical = 2.dp)
+            ) {
+                Text(
+                    text       = if (isPractical) "PRACTICAL" else "LECTURE",
+                    color      = palette.accent,
+                    fontSize   = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 0.5.sp
+                )
+            }
+            Icon(
+                imageVector = Icons.Default.DragHandle,
+                contentDescription = "Move",
+                tint = palette.accent.copy(alpha = 0.3f),
+                modifier = Modifier.size(16.dp)
             )
         }
 
-        Spacer(modifier = Modifier.height((4f * scale).dp))
+        Spacer(modifier = Modifier.height(6.dp))
 
-        if (slot.assignments.size <= 1) {
-            val a = slot.assignments.firstOrNull()
-            Text(
-                text       = a?.subject?.name ?: slot.title ?: "—",
-                color      = palette.accent,
-                fontWeight = FontWeight.SemiBold,
-                fontSize   = (15f * scale).coerceAtLeast(10f).sp,
-                maxLines   = 2,
-                overflow   = TextOverflow.Ellipsis,
-                lineHeight = (19f * scale).coerceAtLeast(12f).sp
-            )
-            Text(
-                text     = a?.faculty?.name ?: "",
-                color    = palette.sub,
-                fontSize = (13f * scale).coerceAtLeast(9f).sp,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            if (a?.batchLabel != null) {
-                Text(text = a.batchLabel, color = palette.sub, fontSize = (11f * scale).coerceAtLeast(8f).sp, fontWeight = FontWeight.Medium)
+        // 2. Assignments Area
+        if (assignments.isNotEmpty()) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                assignments.forEachIndexed { index, a ->
+                    if (index > 0) {
+                        HorizontalDivider(
+                            color = palette.border.copy(alpha = 0.3f),
+                            thickness = 1.dp,
+                            modifier = Modifier.padding(vertical = 2.dp)
+                        )
+                    }
+
+                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        // Batch Tag (if multiple)
+                        if (assignments.size > 1 || a.batchLabel != null) {
+                            Text(
+                                text = "BATCH: ${a.batchLabel ?: "ALL"}",
+                                color = palette.sub,
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.sp
+                            )
+                        }
+
+                        // Subject Abbr + Code
+                        Text(
+                            text = "${a.subject.abbr} • ${a.subject.code}",
+                            color = palette.accent,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 11.sp,
+                            maxLines = 1
+                        )
+
+                        // Subject Full Name
+                        Text(
+                            text = a.subject.name,
+                            color = palette.accent,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 13.sp,
+                            maxLines = if (assignments.size > 1) 1 else 2,
+                            overflow = TextOverflow.Ellipsis,
+                            lineHeight = 16.sp
+                        )
+
+                        // Faculty Name
+                        Text(
+                            text = a.faculty.name,
+                            color = palette.sub,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
             }
         } else {
-            // Multiple batches — list them one after another, simple and clean
-            slot.assignments.forEachIndexed { i, a ->
-                if (i > 0) Spacer(modifier = Modifier.height((8f * scale).dp))
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy((4f * scale).dp)) {
-                    if (a.batchLabel != null) {
-                        Text(text = a.batchLabel, color = palette.sub, fontSize = (11f * scale).coerceAtLeast(8f).sp, fontWeight = FontWeight.Bold)
-                        Text(text = "•", color = palette.sub, fontSize = (11f * scale).coerceAtLeast(8f).sp)
-                    }
-                    Text(
-                        text       = a.subject.name,
-                        color      = palette.accent,
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize   = (13f * scale).coerceAtLeast(9f).sp,
-                        maxLines   = 1,
-                        overflow   = TextOverflow.Ellipsis,
-                        modifier   = Modifier.weight(1f)
-                    )
-                }
-                Text(
-                    text     = a.faculty.name,
-                    color    = palette.sub,
-                    fontSize = (11f * scale).coerceAtLeast(8f).sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.CenterStart) {
+                Text(text = "Empty Slot", color = palette.sub.copy(alpha = 0.4f), fontSize = 13.sp)
             }
         }
     }
 }
 
-// ── Lecture card  (1 × SLOT_ROW_HEIGHT) ──────────────────────────────────────
 @Composable
 fun LectureSlotCard(
     slot: TimetableSlot,
-    scale: Float = 1f,
+    scale: Float = 1f, 
     isDragging: Boolean = false,
     modifier: Modifier = Modifier
 ) {
@@ -136,22 +170,23 @@ fun LectureSlotCard(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(SLOT_ROW_HEIGHT * scale)
-            .clip(RoundedCornerShape((10f * scale).dp))
-            .background(if (isDragging) palette.bg.copy(alpha = 0.85f) else palette.bg)
-            .border(if (isDragging) (2f * scale).dp else (1.5f * scale).dp,
-                    if (isDragging) Color(0xFF6366F1) else palette.border,
-                    RoundedCornerShape((10f * scale).dp))
+            .height(SLOT_ROW_HEIGHT)
+            .clip(RoundedCornerShape(12.dp))
+            .background(if (isDragging) palette.bg.copy(alpha = 0.8f) else palette.bg)
+            .border(
+                width = if (isDragging) 2.dp else 1.dp,
+                color = if (isDragging) Color(0xFF6366F1) else palette.border,
+                shape = RoundedCornerShape(12.dp)
+            )
     ) {
-        SlotContent(slot, palette, scale)
+        SlotContent(slot, palette)
     }
 }
 
-// ── Practical card  (2 × SLOT_ROW_HEIGHT + gap) ──────────────────────────────
 @Composable
 fun PracticalSlotCard(
     slot: TimetableSlot,
-    scale: Float = 1f,
+    scale: Float = 1f, 
     isDragging: Boolean = false,
     modifier: Modifier = Modifier
 ) {
@@ -159,44 +194,45 @@ fun PracticalSlotCard(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(PRACTICAL_CARD_HEIGHT * scale)
-            .clip(RoundedCornerShape((10f * scale).dp))
-            .background(if (isDragging) palette.bg.copy(alpha = 0.85f) else palette.bg)
-            .border(if (isDragging) (2f * scale).dp else (1.5f * scale).dp,
-                    if (isDragging) Color(0xFF6366F1) else palette.border,
-                    RoundedCornerShape((10f * scale).dp))
+            .height(PRACTICAL_CARD_HEIGHT)
+            .clip(RoundedCornerShape(12.dp))
+            .background(if (isDragging) palette.bg.copy(alpha = 0.8f) else palette.bg)
+            .border(
+                width = if (isDragging) 2.dp else 1.dp,
+                color = if (isDragging) Color(0xFF6366F1) else palette.border,
+                shape = RoundedCornerShape(12.dp)
+            )
     ) {
-        SlotContent(slot, palette, scale)
+        SlotContent(slot, palette)
     }
 }
 
-// ── Recess banner ─────────────────────────────────────────────────────────────
 @Composable
 fun RecessBanner(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(36.dp)
+            .height(40.dp)
             .clip(RoundedCornerShape(8.dp))
-            .background(Color(0xFFF3F4F6))
-            .border(1.dp, Color(0xFFD1D5DB), RoundedCornerShape(8.dp)),
+            .background(Color(0xFFF9FAFB))
+            .border(1.dp, Color(0xFFE5E7EB), RoundedCornerShape(8.dp)),
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text          = "☕  RECESS  •  1:30 – 2:00 PM",
-            color         = Color(0xFF6B7280),
-            fontWeight    = FontWeight.SemiBold,
-            fontSize      = 11.sp,
-            letterSpacing = 0.5.sp
+            text          = "LUNCH BREAK  •  1:30 – 2:00 PM",
+            color         = Color(0xFF9CA3AF),
+            fontWeight    = FontWeight.Bold,
+            fontSize      = 10.sp,
+            letterSpacing = 1.sp
         )
     }
 }
 
-// ── Empty slot (dashed box, 1-hour height) ────────────────────────────────────
 @Composable
 fun EmptySlotCard(isHovered: Boolean, modifier: Modifier = Modifier) {
-    val bg     = if (isHovered) Color(0xFFEEF2FF) else Color.Transparent
-    val stroke = if (isHovered) Color(0xFF818CF8) else Color(0xFFD1D5DB)
+    val bg     = if (isHovered) Color(0xFFF5F3FF) else Color.Transparent
+    val stroke = if (isHovered) Color(0xFF8B5CF6) else Color(0xFFE5E7EB)
+    
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -204,13 +240,19 @@ fun EmptySlotCard(isHovered: Boolean, modifier: Modifier = Modifier) {
             .clip(RoundedCornerShape(8.dp))
             .background(bg)
     ) {
-        val pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(floatArrayOf(8f, 8f), 0f)
+        val pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
         androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxSize()) {
             drawRoundRect(
                 color        = stroke,
-                style        = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f, pathEffect = pathEffect),
+                style        = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f, pathEffect = pathEffect),
                 cornerRadius = androidx.compose.ui.geometry.CornerRadius(8.dp.toPx())
             )
+        }
+        
+        if (isHovered) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text("Drop here", color = Color(0xFF8B5CF6), fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+            }
         }
     }
 }

@@ -22,6 +22,9 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.om.timely.faculty.home.data.dto.CreateTimetableSlotDto
+import com.om.timely.faculty.home.data.dto.UpdateTimetableSlotDto
+import com.om.timely.faculty.home.data.dto.CreateTimetableAssignmentDto
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -76,19 +79,16 @@ class FacultyEditViewModel(
             }
             
             // Background observe all available subjects for this faculty's dept
-            val dept = _state.value.profile?.dept
-                ?.takeIf { it.isNotBlank() }
-                ?: "Computer Science and Engineering" // safe fallback
 
             viewModelScope.launch {
-                subjectRepository.getAllSubjects(dept).collect { subjectsList ->
+                subjectRepository.getAllSubjects().collect { subjectsList ->
                     _state.update { it.copy(allAvailableSubjects = subjectsList) }
                 }
             }
 
             // Trigger network sync for subjects into Room
             viewModelScope.launch {
-                subjectRepository.fetchAllSubjects(dept)
+                subjectRepository.fetchAllSubjects()
             }
 
             // Background fetch all available faculties globally
@@ -130,6 +130,7 @@ class FacultyEditViewModel(
                         it.copy(
                             isLoading = false,
                             selectedDay = day,
+                            selectedDayId = scheduleResult.data.dayId,
                             selectedSemester = semester,
                             timeline = scheduleResult.data.timeline,
                             originalTimeline = scheduleResult.data.timeline
@@ -157,7 +158,58 @@ class FacultyEditViewModel(
                 val recalcedList = recalculateTimelineStrings(_state.value.timeline, action.slots)
                 _state.update { it.copy(timeline = recalcedList) }
             }
+            FacultyEditAction.OnDragEnded -> {
+                val originalList = _state.value.originalTimeline
+                val reorderedList = _state.value.timeline
+                val dayId = _state.value.selectedDayId ?: return
+                
+                val currentConfig = originalList.toMutableList()
+                val targetConfig = reorderedList
+                val swapsToPerform = mutableListOf<Pair<Int, Int>>()
+
+                for (i in targetConfig.indices) {
+                    if (currentConfig[i].id != targetConfig[i].id) {
+                        val correctItemIdx = currentConfig.indexOfFirst { it.id == targetConfig[i].id }
+                        val id1 = currentConfig[i].id.toIntOrNull()
+                        val id2 = currentConfig[correctItemIdx].id.toIntOrNull()
+                        if (id1 != null && id2 != null) {
+                            swapsToPerform.add(Pair(id1, id2))
+                        }
+                        val temp = currentConfig[i]
+                        currentConfig[i] = currentConfig[correctItemIdx]
+                        currentConfig[correctItemIdx] = temp
+                    }
+                }
+
+                if (swapsToPerform.isNotEmpty()) {
+                    viewModelScope.launch {
+                        _state.update { it.copy(isLoading = true) }
+                        var success = true
+                        for (swap in swapsToPerform) {
+                            val result = homeRepository.swapSlots(dayId, swap.first, swap.second)
+                            if (result is Result.Error) {
+                                success = false
+                                _events.emit(FacultyEditEvent.ShowError(result.error.asUiText()))
+                                break
+                            }
+                        }
+                        
+                        if (success) {
+                            fetchSchedule(_state.value.selectedDay, _state.value.selectedSemester)
+                        } else {
+                            // If any swap failed, revert UI back to original safely to prevent descync
+                            _state.update { it.copy(isLoading = false, timeline = originalList) }
+                        }
+                    }
+                }
+            }
             FacultyEditAction.OnAddSlotClicked -> {
+                val dayId = _state.value.selectedDayId
+                if (dayId == null) {
+                    viewModelScope.launch { _events.emit(FacultyEditEvent.ShowError(UiText.DynamicString("Wait for schedule to load."))) }
+                    return
+                }
+
                 val currentTimeline = _state.value.timeline
                 val lastTimeStr = currentTimeline.lastOrNull()?.endTime ?: "9:00 AM"
                 
@@ -167,40 +219,32 @@ class FacultyEditViewModel(
                 
                 if (lastLocalTime.isBefore(maxLimitTime)) {
                     val nextEndTime = lastLocalTime.plusHours(1)
-                    val formattedNext = nextEndTime.format(formatter).replace("AM", "AM").replace("PM", "PM") // Quick format
+                    val formattedNext = nextEndTime.format(formatter).replace("AM", "AM").replace("PM", "PM") 
                     
-                    val newSlot = EmptySlot(
-                        id = "new_${UUID.randomUUID().toString().take(6)}",
-                        startTime = lastTimeStr,
-                        endTime = formattedNext
-                    )
-                    _state.update { it.copy(timeline = currentTimeline + newSlot) } // No full recalculation needed for addition
+                    viewModelScope.launch {
+                        _state.update { it.copy(isLoading = true) }
+                        val createDto = CreateTimetableSlotDto(
+                            startTime = lastTimeStr,
+                            endTime = formattedNext,
+                            slotKind = "empty",
+                            title = "No class scheduled",
+                            assignments = emptyList()
+                        )
+                        when (val result = homeRepository.addSlot(dayId, createDto)) {
+                            is Result.Success -> fetchSchedule(_state.value.selectedDay, _state.value.selectedSemester)
+                            is Result.Error -> {
+                                _state.update { it.copy(isLoading = false) }
+                                _events.emit(FacultyEditEvent.ShowError(result.error.asUiText()))
+                            }
+                        }
+                    }
                 } else {
                     viewModelScope.launch {
                         _events.emit(FacultyEditEvent.ShowError(UiText.DynamicString("Cannot schedule beyond 5:00 PM")))
                     }
                 }
             }
-            FacultyEditAction.OnToggleLockClicked -> {
-                _state.update { currentState ->
-                    val willLock = !currentState.isLocked
-                    if (willLock) {
-                        // Moving from Unlocked -> Locked. Time to sync bulk changes!
-                        val addedSlots = currentState.timeline.filter { slot -> currentState.originalTimeline.none { it.id == slot.id } }
-                        val removedSlots = currentState.originalTimeline.filter { slot -> currentState.timeline.none { it.id == slot.id } }
-                        val modifiedSlots = currentState.timeline.filter { slot -> 
-                            val orig = currentState.originalTimeline.find { it.id == slot.id }
-                            orig != null && orig != slot
-                        }
 
-                        viewModelScope.launch {
-                            val msg = "Syncing... Added: ${addedSlots.size}, Removed: ${removedSlots.size}, Modified: ${modifiedSlots.size}"
-                            _events.emit(FacultyEditEvent.ShowError(com.om.timely.core.presentation.UiText.DynamicString(msg)))
-                        }
-                    }
-                    currentState.copy(isLocked = willLock, originalTimeline = if(willLock) currentState.timeline else currentState.originalTimeline)
-                }
-            }
             is FacultyEditAction.OnSlotEditClicked -> {
                 val targetSlot = _state.value.timeline.find { it.id == action.slotId }
                 if (targetSlot != null && targetSlot !is RecessSlot && targetSlot !is EmptySlot) {
@@ -212,9 +256,9 @@ class FacultyEditViewModel(
                             isVisible = true,
                             slotId = lec.id,
                             isLecture = true,
-                            lectureSubjectId = null,
-                            lectureFacultyId = null,
-                            lectureRoomId = null,
+                            lectureSubjectId = _state.value.allAvailableSubjects.find { it.code == lec.subjectCode || it.name == lec.subjectName }?.id,
+                            lectureFacultyId = currentState.availableFaculties.find { it.name == lec.facultyName }?.id,
+                            lectureRoomId = currentState.availableRooms.find { it.roomNumber == lec.roomNo }?.id,
                             practicalBatches = emptyList()
                         )
                     } else {
@@ -226,8 +270,14 @@ class FacultyEditViewModel(
                             lectureSubjectId = null,
                             lectureFacultyId = null,
                             lectureRoomId = null,
-                            practicalBatches = prac.batches.map { 
-                                EditBatchState(id = it.id, name = it.batchName)
+                            practicalBatches = prac.batches.map { batch ->
+                                EditBatchState(
+                                    id = batch.id, 
+                                    name = batch.batchName,
+                                    subjectId = _state.value.allAvailableSubjects.find { it.name == batch.subjectName }?.id,
+                                    facultyId = currentState.availableFaculties.find { it.name == batch.facultyName }?.id,
+                                    roomId = currentState.availableRooms.find { it.roomNumber == batch.roomNo }?.id
+                                )
                             }
                         )
                     }
@@ -325,28 +375,60 @@ class FacultyEditViewModel(
                 }
             }
             FacultyEditAction.OnSaveSlotChanges -> {
-                // Apply the buffered edits from the Bottom Sheet to the working timeline array
-                // For now, just simulate applying changes and closing sheet
-                _state.update { 
-                    it.copy(editSlotState = EditSlotState(
-                        availableFaculties = it.editSlotState.availableFaculties, 
-                        availableRooms = it.editSlotState.availableRooms
-                    )) 
-                }
+                val editState = _state.value.editSlotState
+                val slotId = editState.slotId.toIntOrNull()
+                val targetSlot = _state.value.timeline.find { it.id == editState.slotId }
+                if (slotId == null || targetSlot == null) return
+                
                 viewModelScope.launch {
-                    _events.emit(FacultyEditEvent.ShowError(com.om.timely.core.presentation.UiText.DynamicString("Mock: Slot Changes Applied to Buffer! Hit Lock to Sync.")))
+                    _state.update { it.copy(isLoading = true, editSlotState = EditSlotState(availableFaculties = editState.availableFaculties, availableRooms = editState.availableRooms)) }
+                    
+                    val assignments = mutableListOf<CreateTimetableAssignmentDto>()
+                    if (editState.isLecture) {
+                        val subCode = _state.value.allAvailableSubjects.find { it.id.toInt() == editState.lectureSubjectId }?.code ?: "Unknown"
+                        val facName = editState.availableFaculties.find { it.id == editState.lectureFacultyId }?.name ?: "TBD"
+                        val roomLabel = "TBD" // or from editState.availableRooms
+                        
+                        assignments.add(CreateTimetableAssignmentDto(subCode, facName, roomLabel, null))
+                    } else {
+                        editState.practicalBatches.forEach { batch ->
+                            val subCode = _state.value.allAvailableSubjects.find { it.id.toInt() == batch.subjectId }?.code ?: "Unknown"
+                            val facName = editState.availableFaculties.find { it.id == batch.facultyId }?.name ?: "TBD"
+                            val roomLabel = "TBD"
+                            assignments.add(CreateTimetableAssignmentDto(subCode, facName, roomLabel, batch.name))
+                        }
+                    }
+
+                    val updateDto = UpdateTimetableSlotDto(
+                        startTime = targetSlot.startTime,
+                        endTime = targetSlot.endTime,
+                        slotKind = if (editState.isLecture) "lecture" else "practical",
+                        title = targetSlot.let { if (it is PracticalSlot) it.title else null },
+                        assignments = assignments
+                    )
+
+                    when (val result = homeRepository.updateSlot(slotId, updateDto)) {
+                        is Result.Success -> fetchSchedule(_state.value.selectedDay, _state.value.selectedSemester)
+                        is Result.Error -> {
+                            _state.update { it.copy(isLoading = false) }
+                            _events.emit(FacultyEditEvent.ShowError(result.error.asUiText()))
+                        }
+                    }
                 }
             }
             is FacultyEditAction.OnDeleteSlot -> {
-                _state.update { currentState ->
-                    val filteredTimeline = currentState.timeline.filter { it.id != action.slotId }
-                    currentState.copy(
-                        timeline = recalculateTimelineStrings(filteredTimeline, filteredTimeline),
-                        editSlotState = EditSlotState(
-                            availableFaculties = currentState.editSlotState.availableFaculties, 
-                            availableRooms = currentState.editSlotState.availableRooms
-                        )
-                    )
+                val slotId = action.slotId.toIntOrNull()
+                if (slotId != null) {
+                    viewModelScope.launch {
+                        _state.update { it.copy(isLoading = true) }
+                        when (val result = homeRepository.deleteSlot(slotId)) {
+                            is Result.Success -> fetchSchedule(_state.value.selectedDay, _state.value.selectedSemester)
+                            is Result.Error -> {
+                                _state.update { it.copy(isLoading = false) }
+                                _events.emit(FacultyEditEvent.ShowError(result.error.asUiText()))
+                            }
+                        }
+                    }
                 }
             }
             FacultyEditAction.OnSubjectsClicked -> {

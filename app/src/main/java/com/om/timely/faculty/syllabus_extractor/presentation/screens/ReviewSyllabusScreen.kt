@@ -18,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -41,44 +42,77 @@ fun ReviewSyllabusScreen(
     if (state.extractedSemesters.isEmpty()) return
 
     val currentSem = state.extractedSemesters.getOrNull(state.selectedSemesterTabIndex) ?: return
+    var showHelpCard by remember { mutableStateOf(true) }
 
     Column(modifier = Modifier.fillMaxSize()) {
+
+        // --- SCROLLABLE CONTENT AREA ---
         LazyColumn(
             modifier = Modifier.weight(1f),
+            contentPadding = PaddingValues(top = 16.dp, bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            item("header") {
-                Card(
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f)),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Row(modifier = Modifier.padding(16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Icon(Icons.Default.HelpOutline, contentDescription = "Help", tint = MaterialTheme.colorScheme.tertiary)
-                        Column(modifier = Modifier.weight(1f)) {
-                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                Text("Review & Edit Your Syllabus", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onTertiaryContainer)
-                                Icon(Icons.Default.Close, contentDescription = "Close", modifier = Modifier.size(16.dp))
+
+            // 1. Syllabus Name (Now scrolls out of the way)
+            item("syllabus_name") {
+                OutlinedTextField(
+                    value = state.syllabusName,
+                    onValueChange = { onAction(SyllabusExtractorAction.OnSyllabusNameChange(it)) },
+                    label = { Text("Syllabus Name (e.g. Even 2026 Scheme)") },
+                    placeholder = { Text("Leave blank for default") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true
+                )
+            }
+
+            // 2. Dismissible Help Card
+            if (showHelpCard) {
+                item("header") {
+                    Card(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f)),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Row(modifier = Modifier.padding(16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Icon(Icons.Default.HelpOutline, contentDescription = "Help", tint = MaterialTheme.colorScheme.tertiary)
+                            Column(modifier = Modifier.weight(1f)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text("Review & Edit Your Syllabus", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onTertiaryContainer)
+                                    IconButton(
+                                        onClick = { showHelpCard = false },
+                                        modifier = Modifier.size(24.dp)
+                                    ) {
+                                        Icon(Icons.Default.Close, contentDescription = "Close", modifier = Modifier.size(16.dp))
+                                    }
+                                }
+                                Text(
+                                    "Switch between semesters using the tabs. Hover over any subject and click the pencil icon to edit name, code, type, and hours. Elective groups are collapsible for a cleaner view.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onTertiaryContainer,
+                                    modifier = Modifier.padding(top = 4.dp)
+                                )
                             }
-                            Text(
-                                "Switch between semesters using the tabs. Hover over any subject and click the pencil icon to edit name, code, type, and hours. Elective groups are collapsible for a cleaner view.",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onTertiaryContainer,
-                                modifier = Modifier.padding(top = 4.dp)
-                            )
                         }
                     }
                 }
             }
 
+            // 3. Sticky Tabs & Filters
             stickyHeader {
-                Column(modifier = Modifier.background(Color.White)) {
+                Column(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
                     ScrollableTabRow(
                         selectedTabIndex = state.selectedSemesterTabIndex,
                         edgePadding = 16.dp,
                         divider = {},
                         containerColor = Color.Transparent,
-                        indicator = { } // Remove default underline indicator
+                        indicator = { }
                     ) {
                         state.extractedSemesters.forEachIndexed { index, sem ->
                             val selected = index == state.selectedSemesterTabIndex
@@ -110,7 +144,7 @@ fun ReviewSyllabusScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Filter and total text
+                    // Filter row
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                         verticalAlignment = Alignment.CenterVertically,
@@ -119,10 +153,10 @@ fun ReviewSyllabusScreen(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Default.FilterAlt, contentDescription = "Filter", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(8.dp))
-                            
+
                             var expanded by remember { mutableStateOf(false) }
                             val allTypes = listOf("All Types", "Core", "Lab", "Elective", "Project")
-                            
+
                             ExposedDropdownMenuBox(
                                 expanded = expanded,
                                 onExpandedChange = { expanded = it }
@@ -154,17 +188,18 @@ fun ReviewSyllabusScreen(
                             }
                         }
 
-                        val filteredSubjects = currentSem.subjects.filter {
+                        val filteredCount = currentSem.subjects.count {
                             state.subjectTypeFilter == "All Types" || it.type.equals(state.subjectTypeFilter, ignoreCase=true)
                         }
-                        Text("${filteredSubjects.size} subjects", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium)
+                        Text("$filteredCount subjects", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium)
                     }
-                    
+
                     Spacer(modifier = Modifier.height(8.dp))
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha=0.2f))
                 }
             }
 
+            // 4. Subject Lists
             val filteredSubjects = currentSem.subjects.filter {
                 state.subjectTypeFilter == "All Types" || it.type.equals(state.subjectTypeFilter, ignoreCase=true)
             }
@@ -188,73 +223,49 @@ fun ReviewSyllabusScreen(
                     }
                 }
             }
-
-            item { Spacer(modifier = Modifier.height(8.dp)) }
         }
 
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)) {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                OutlinedTextField(
-                    value = state.syllabusName,
-                    onValueChange = { onAction(SyllabusExtractorAction.OnSyllabusNameChange(it)) },
-                    label = { Text("Syllabus Name (e.g. Even 2026 Scheme)") },
-                    placeholder = { Text("Leave blank for default") },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    singleLine = true
-                )
-
+        // --- FIXED BOTTOM AREA (Compact & Neat) ---
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shadowElevation = 8.dp, // Slight shadow to separate from scrolling list
+            color = MaterialTheme.colorScheme.surface
+        ) {
+            Column(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // Compact Toggle Row
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier.fillMaxWidth().clickable { onAction(SyllabusExtractorAction.OnToggleSaveAsDraft(!state.isSaveAsDraftEnabled)) },
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Surface(
-                            color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f),
-                            shape = RoundedCornerShape(8.dp)
-                        ) {
-                            Icon(
-                                Icons.Default.Inventory2,
-                                contentDescription = null,
-                                modifier = Modifier.padding(8.dp).size(18.dp),
-                                tint = MaterialTheme.colorScheme.secondary
-                            )
-                        }
+                        Icon(
+                            Icons.Default.Inventory2,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.secondary,
+                            modifier = Modifier.size(20.dp)
+                        )
                         Spacer(modifier = Modifier.width(12.dp))
-                        Column {
-                            Text(
-                                "Save as local draft",
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            Text(
-                                "Allow editing later from Management",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
+                        Text(
+                            text = "Save as draft (edit later)",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
                     }
                     Switch(
                         checked = state.isSaveAsDraftEnabled,
                         onCheckedChange = { onAction(SyllabusExtractorAction.OnToggleSaveAsDraft(it)) },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = MaterialTheme.colorScheme.primary,
-                            checkedTrackColor = MaterialTheme.colorScheme.primaryContainer
-                        )
+                        modifier = Modifier.scale(0.8f) // Slightly scale down to save space
                     )
                 }
 
+                // Primary Action Button
                 Button(
                     onClick = { onAction(SyllabusExtractorAction.OnConfirmAndSaveAll) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
+                    modifier = Modifier.fillMaxWidth().height(52.dp),
                     enabled = !state.isSavingFinal,
                     shape = RoundedCornerShape(12.dp)
                 ) {
@@ -278,57 +289,12 @@ fun ReviewSyllabusScreen(
         }
     }
 }
-
-@Composable
-fun ElectiveGroupContainer(groupName: String, subjects: List<ExtractedSubjectUi>, onAction: (SyllabusExtractorAction) -> Unit) {
-    var expanded by remember { mutableStateOf(true) }
-
-    Card(
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha=0.2f)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        modifier = Modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha=0.5f), RoundedCornerShape(16.dp))
-    ) {
-        Column {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { expanded = !expanded }
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                Spacer(modifier = Modifier.width(8.dp))
-                Icon(Icons.Default.Layers, contentDescription = null, tint = Color(0xFFF57C00))
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = groupName, 
-                    fontWeight = FontWeight.Bold, 
-                    modifier = Modifier.weight(1f), 
-                    fontSize = 16.sp, 
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-                )
-                Surface(color = MaterialTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(16.dp)) {
-                    Text("${subjects.size} options", fontSize = 12.sp, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Medium)
-                }
-            }
-            AnimatedVisibility(visible = expanded) {
-                Column(modifier = Modifier.padding(bottom = 16.dp, start = 16.dp, end = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    subjects.forEach { subj -> SubjectCard(subj, onAction) }
-                }
-            }
-        }
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubjectCard(subject: ExtractedSubjectUi, onAction: (SyllabusExtractorAction) -> Unit) {
     Surface(
         shape = RoundedCornerShape(16.dp),
-        color = Color.Transparent, 
+        color = Color.Transparent,
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.animateContentSize()) {
@@ -341,7 +307,7 @@ fun SubjectCard(subject: ExtractedSubjectUi, onAction: (SyllabusExtractorAction)
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(16.dp).fillMaxWidth()) {
-                        
+
                         OutlinedTextField(
                             value = subject.name,
                             onValueChange = { onAction(SyllabusExtractorAction.OnSubjectFieldChanged(subject.id, SubjectField.NAME, it)) },
@@ -395,7 +361,7 @@ fun SubjectCard(subject: ExtractedSubjectUi, onAction: (SyllabusExtractorAction)
                                 }
                             }
                         }
-                        
+
                         if (subject.type.equals("elective", ignoreCase = true)) {
                             Spacer(modifier = Modifier.height(8.dp))
                             OutlinedTextField(
@@ -446,27 +412,27 @@ fun SubjectCard(subject: ExtractedSubjectUi, onAction: (SyllabusExtractorAction)
                                 onClick = { onAction(SyllabusExtractorAction.OnCancelSubjectEdit(subject.id)) },
                                 shape = RoundedCornerShape(8.dp),
                                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
-                            ) { 
+                            ) {
                                 Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("Cancel", color = MaterialTheme.colorScheme.onSurfaceVariant) 
+                                Text("Cancel", color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             Spacer(modifier = Modifier.width(16.dp))
                             Button(
                                 onClick = { onAction(SyllabusExtractorAction.OnSaveSubjectEdit(subject.id)) },
                                 shape = RoundedCornerShape(8.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                            ) { 
+                            ) {
                                 Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("Save Changes") 
+                                Text("Save Changes")
                             }
                         }
                     }
                 }
             } else {
                 Row(
-                    verticalAlignment = Alignment.CenterVertically, 
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
                 ) {
                     val typeLower = subject.type.lowercase()
@@ -476,44 +442,52 @@ fun SubjectCard(subject: ExtractedSubjectUi, onAction: (SyllabusExtractorAction)
                         typeLower.contains("project") -> Triple(Icons.Default.Build, Color(0xFF7B1FA2), Color(0xFFF3E5F5))
                         else -> Triple(Icons.Default.MenuBook, MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primaryContainer.copy(alpha=0.4f))
                     }
-                    
+
+                    // --- UPDATED SMALLER TYPE PILL ---
                     Surface(
                         color = pillBg,
-                        shape = RoundedCornerShape(16.dp),
+                        shape = RoundedCornerShape(8.dp),
                         border = BorderStroke(0.5.dp, pillColor.copy(alpha=0.3f))
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(horizontal=12.dp, vertical=6.dp)) {
-                            Icon(icon, contentDescription=null, modifier = Modifier.size(14.dp), tint=pillColor)
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(subject.type.replaceFirstChar { it.uppercase() }, fontSize=13.sp, color=pillColor, fontWeight = FontWeight.SemiBold)
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(horizontal=6.dp, vertical=4.dp)) {
+                            Icon(icon, contentDescription=null, modifier = Modifier.size(12.dp), tint=pillColor)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(subject.type.replaceFirstChar { it.uppercase() }, fontSize=10.sp, color=pillColor, fontWeight = FontWeight.Bold)
                         }
                     }
-                    
-                    Spacer(modifier = Modifier.width(16.dp))
-                    
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = subject.name, 
-                            fontWeight = FontWeight.Medium, 
-                            fontSize = 16.sp, 
+                            text = subject.name,
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 16.sp,
                             color = MaterialTheme.colorScheme.onSurface,
                             maxLines = 2,
                             overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                         )
-                        Spacer(modifier = Modifier.height(2.dp))
+                        Spacer(modifier = Modifier.height(4.dp))
                         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                             val code = subject.courseCode
                             if (!code.isNullOrBlank()) {
-                                Text(
-                                    text = "# $code", 
-                                    style = MaterialTheme.typography.bodySmall, 
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    maxLines = 1,
-                                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
-                                    modifier = Modifier.weight(1f, fill = false)
-                                )
+                                // --- UPDATED SUBJECT CODE PILL ---
+                                Surface(
+                                    color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f),
+                                    shape = RoundedCornerShape(6.dp)
+                                ) {
+                                    Text(
+                                        text = code,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                        fontWeight = FontWeight.Bold,
+                                        maxLines = 1,
+                                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                    )
+                                }
                             }
-                            
+
                             val group = subject.electiveGroup
                             if (!group.isNullOrBlank()) {
                                 if (!code.isNullOrBlank()) {
@@ -522,9 +496,10 @@ fun SubjectCard(subject: ExtractedSubjectUi, onAction: (SyllabusExtractorAction)
                                     Spacer(modifier = Modifier.width(8.dp))
                                 }
                                 Text(
-                                    text = group, 
-                                    style = MaterialTheme.typography.bodySmall, 
+                                    text = group,
+                                    style = MaterialTheme.typography.bodySmall,
                                     color = Color(0xFFF57C00),
+                                    fontWeight = FontWeight.Medium,
                                     maxLines = 1,
                                     overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                                     modifier = Modifier.weight(1f, fill = false)
@@ -534,12 +509,21 @@ fun SubjectCard(subject: ExtractedSubjectUi, onAction: (SyllabusExtractorAction)
                     }
 
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        "L:${subject.lecture}  T:${subject.tutorial}  P:${subject.practical}", 
-                        style = MaterialTheme.typography.labelMedium, 
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha=0.8f),
-                        letterSpacing = 1.sp
-                    )
+
+                    // --- UPDATED BOLD HIGHLIGHTED L/T/P PILL ---
+                    Surface(
+                        color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.4f),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(
+                            text = "L:${subject.lecture} T:${subject.tutorial} P:${subject.practical}",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = MaterialTheme.colorScheme.onTertiaryContainer,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
+
                     Spacer(modifier = Modifier.width(12.dp))
 
                     Surface(
@@ -555,6 +539,49 @@ fun SubjectCard(subject: ExtractedSubjectUi, onAction: (SyllabusExtractorAction)
     }
 }
 
+@Composable
+fun ElectiveGroupContainer(groupName: String, subjects: List<ExtractedSubjectUi>, onAction: (SyllabusExtractorAction) -> Unit) {
+    var expanded by remember { mutableStateOf(true) }
+
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha=0.2f)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        modifier = Modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha=0.5f), RoundedCornerShape(16.dp))
+    ) {
+        Column {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { expanded = !expanded }
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                Spacer(modifier = Modifier.width(8.dp))
+                Icon(Icons.Default.Layers, contentDescription = null, tint = Color(0xFFF57C00))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = groupName,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(1f),
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                )
+                Surface(color = MaterialTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(16.dp)) {
+                    Text("${subjects.size} options", fontSize = 12.sp, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Medium)
+                }
+            }
+            AnimatedVisibility(visible = expanded) {
+                Column(modifier = Modifier.padding(bottom = 16.dp, start = 16.dp, end = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    subjects.forEach { subj -> SubjectCard(subj, onAction) }
+                }
+            }
+        }
+    }
+}
 // --- PREVIEW ---
 
 @Preview(showBackground = true)

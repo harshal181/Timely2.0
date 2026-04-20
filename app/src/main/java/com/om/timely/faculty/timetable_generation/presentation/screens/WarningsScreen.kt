@@ -88,15 +88,6 @@ fun WarningsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(
-            onClick = { onAction(TimetableGenerationAction.AcknowledgeWarnings) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = BrandColors.PrimaryPurple)
-        ) {
-            Text("Acknowledge & Review", fontSize = 16.sp, fontWeight = FontWeight.Medium)
-        }
+
     }
 }

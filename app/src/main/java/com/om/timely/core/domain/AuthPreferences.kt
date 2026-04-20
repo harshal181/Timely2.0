@@ -11,5 +11,7 @@ interface AuthPreferences {
     /** Persist the user's full department string (e.g. "Computer Science and Engineering"). */
     fun getDept(): String?
     fun saveDept(dept: String)
+    fun getActiveJobId(): String?
+    fun saveActiveJobId(jobId: String?)
     fun clearTokens()
 }

@@ -284,7 +284,8 @@ class SyllabusExtractorViewModel(
                                 tutorial = subjData.tutorial.toString(),
                                 practical = subjData.practical.toString(),
                                 type = subjData.type,
-                                electiveGroup = subjData.electiveGroup
+                                electiveGroup = subjData.electiveGroup,
+
                             )
                         }
                     )
@@ -299,8 +300,9 @@ class SyllabusExtractorViewModel(
                     syllabusName = draft.name,
                     semesterCategory = category,
                     loadedDraftId = draft.id,
-                    isSaveAsDraftEnabled = true // Keep draft mode on when editing a draft by default
-                ) }
+                    isSaveAsDraftEnabled = true , // Keep draft mode on when editing a draft by default
+                    isResumedDraft = true
+                    ) }
             } else {
                 _state.update { it.copy(isProcessing = false) }
                 eventChannel.send(SyllabusExtractorEvent.ShowError(UiText.DynamicString("Failed to load draft.")))

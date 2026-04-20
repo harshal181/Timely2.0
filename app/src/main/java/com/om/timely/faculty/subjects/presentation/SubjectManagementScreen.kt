@@ -108,7 +108,7 @@ fun SubjectManagementScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Subject Management",
+                        text = "All Subject's",
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 18.sp,
                         color = Color(0xFF111827),
@@ -117,11 +117,7 @@ fun SubjectManagementScreen(
                 },
                 navigationIcon = {
                     IconButton(
-                        onClick = { onAction(SubjectManagementAction.NavigateBack) },
-                        modifier = Modifier
-                            .padding(start = 16.dp, end = 8.dp)
-                            .size(20.dp)
-                            .background(Color(0xFFF3E8FF), CircleShape)
+                        onClick = { onAction(SubjectManagementAction.NavigateBack) }
                     ) {
                         Icon(
                             imageVector = Icons.Default.ArrowBackIosNew,

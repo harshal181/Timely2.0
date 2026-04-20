@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 import com.om.timely.auth.domain.UserRole
+import com.om.timely.core.presentation.UiText
 import com.om.timely.profile.domain.repository.ProfileRepository
 
 class NotificationViewModel(
@@ -103,23 +104,44 @@ class NotificationViewModel(
     private fun sendNotification() {
         viewModelScope.launch {
             val form = _state.value.sendFormState
+
+            // 1. Validation
             if (form.title.isBlank() || form.message.isBlank() || form.selectedType == null) {
                 eventChannel.send(NotificationEvent.ShowError(com.om.timely.core.presentation.UiText.DynamicString("Please fill all fields")))
                 return@launch
             }
 
             _state.update { it.copy(isLoading = true) }
-            // Mock backend call
-            kotlinx.coroutines.delay(1000)
 
-            // Success
-            _state.update { it.copy(
-                isLoading = false,
-                isSendDialogVisible = false,
-                sendFormState = SendNotificationFormState()
-            ) }
-            eventChannel.send(NotificationEvent.ShowSnackbar(com.om.timely.core.presentation.UiText.DynamicString("Notification Sent!")))
-            loadNotifications()
+            // 2. Map the UI dropdown string to the actual Firebase topic
+            val targetTopic = mapScopeToTopic(form.targetScope)
+
+            // 3. Call the repository
+            val result = repository.sendNotification(
+                title = form.title.trim(),
+                message = form.message.trim(),
+                type = form.selectedType.name,
+                topic = targetTopic
+            )
+
+            // 4. Handle Result
+            when (result) {
+                is Result.Success -> {
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            isSendDialogVisible = false,
+                            sendFormState = SendNotificationFormState() // Reset form
+                        )
+                    }
+                    eventChannel.send(NotificationEvent.ShowSnackbar(com.om.timely.core.presentation.UiText.DynamicString("Notification Sent!")))
+                    loadNotifications()
+                }
+                is Result.Error -> {
+                    _state.update { it.copy(isLoading = false) }
+                    eventChannel.send(NotificationEvent.ShowError(result.error.asUiText()))
+                }
+            }
         }
     }
 
@@ -219,6 +241,31 @@ class NotificationViewModel(
         }
         FacultyNotificationFilter.CHANGES -> list.filter {
             it.type == NotificationType.FACULTY_CHANGE
+        }
+    }
+
+// helper method to map the topic with neat FCM topics
+    private fun mapScopeToTopic(scope: String): String {
+        return when (scope) {
+            "All Students and Faculty" -> "common_topic"
+            "Semester 1" -> "semester_1_sync"
+            "Semester 2" -> "semester_2_sync"
+            "Semester 3" -> "semester_3_sync"
+            "Semester 4" -> "semester_4_sync"
+            "Semester 5" -> "semester_5_sync"
+            "Semester 6" -> "semester_6_sync"
+            "Semester 7" -> "semester_7_sync"
+            "Semester 8" -> "semester_8_sync"
+            else -> {
+                // Regex fallback just in case you add more semesters dynamically later
+                val match = Regex("Semester (\\d+)").find(scope)
+                if (match != null) {
+                    val semNumber = match.groupValues[1]
+                    "semester_${semNumber}_sync"
+                } else {
+                    "common_topic"
+                }
+            }
         }
     }
 }

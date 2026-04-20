@@ -223,9 +223,7 @@ fun FacultyEditScreen(
             // Info bar Config
             EditToolBar(
                 slotCount = state.timeline.size,
-                isLocked = state.isLocked,
-                onAddClick = { onAction(FacultyEditAction.OnAddSlotClicked) },
-                onLockClick = { onAction(FacultyEditAction.OnToggleLockClicked) }
+                onAddClick = { onAction(FacultyEditAction.OnAddSlotClicked) }
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -258,10 +256,10 @@ fun FacultyEditScreen(
                     onAction(FacultyEditAction.OnSlotsReordered(updatedList))
                 }
 
-
-                LaunchedEffect(reorderableState) {
-                    // Though sh.calvin.reorderable might not expose canDragOver directly in the remember call in this version,
-                    // we handle the visual drag restriction by not adding the modifier to Recess.
+                LaunchedEffect(reorderableState.isAnyItemDragging) {
+                    if (!reorderableState.isAnyItemDragging) {
+                        onAction(FacultyEditAction.OnDragEnded)
+                    }
                 }
 
                 LazyColumn(
@@ -274,7 +272,7 @@ fun FacultyEditScreen(
                 ) {
                     itemsIndexed(items = state.timeline, key = { _, item -> item.id }) { index, slot ->
                         val isLast = index == state.timeline.size - 1
-                        val isReorderable = slot !is RecessSlot && !state.isLocked
+                        val isReorderable = slot !is RecessSlot
 
                         ReorderableItem(reorderableState, key = slot.id, enabled = isReorderable) { isDragging ->
                             val elevation = animateDpAsState(if (isDragging) 8.dp else 0.dp)
@@ -316,8 +314,8 @@ fun FacultyEditScreen(
                                 ) {
                                     // Render respective card based on slot type
                                     when (slot) {
-                                        is LectureSlot -> LectureSlotCard(slot = slot, isEditable = !state.isLocked, onEditClick = { onAction(FacultyEditAction.OnSlotEditClicked(slot.id)) })
-                                        is PracticalSlot -> PracticalSlotCard(slot = slot, isEditable = !state.isLocked, onEditClick = { onAction(FacultyEditAction.OnSlotEditClicked(slot.id)) })
+                                        is LectureSlot -> LectureSlotCard(slot = slot, isEditable = true, onEditClick = { onAction(FacultyEditAction.OnSlotEditClicked(slot.id)) })
+                                        is PracticalSlot -> PracticalSlotCard(slot = slot, isEditable = true, onEditClick = { onAction(FacultyEditAction.OnSlotEditClicked(slot.id)) })
                                         is RecessSlot -> RecessSlotCard(slot = slot)
                                         is EmptySlot -> EmptySlotCard(slot = slot)
                                     }

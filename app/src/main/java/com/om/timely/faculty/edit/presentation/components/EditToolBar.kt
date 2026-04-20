@@ -32,9 +32,7 @@ import com.om.timely.R
 @Composable
 fun EditToolBar(
     slotCount: Int,
-    isLocked: Boolean,
-    onAddClick: () -> Unit,
-    onLockClick: () -> Unit
+    onAddClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -64,54 +62,28 @@ fun EditToolBar(
         }
 
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            // Lock Toggle Button
+            // Add Button
             Row(
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
-                    .background(if (isLocked) Color(0xFFF3F4F6) else Color(0xFFDC2626))
-                    .clickable { onLockClick() }
+                    .background(Color(0xFF7C3AED))
+                    .clickable { onAddClick() }
                     .padding(horizontal = 12.dp, vertical = 6.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = if (isLocked) Icons.Default.Lock else Icons.Default.LockOpen,
-                    contentDescription = "Toggle Edit Lock",
-                    tint = if (isLocked) Color(0xFF4B5563) else Color.White,
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Add Slot",
+                    tint = Color.White,
                     modifier = Modifier.size(14.dp)
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = if (isLocked) "Unlock" else "Lock & Save",
-                    color = if (isLocked) Color(0xFF4B5563) else Color.White,
+                    text = "Add",
+                    color = Color.White,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold
                 )
-            }
-            
-            // Add Button
-            if (!isLocked) {
-                Row(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(Color(0xFF7C3AED))
-                        .clickable { onAddClick() }
-                        .padding(horizontal = 12.dp, vertical = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Add Slot",
-                        tint = Color.White,
-                        modifier = Modifier.size(14.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "Add",
-                        color = Color.White,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
             }
         }
     }

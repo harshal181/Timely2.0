@@ -28,6 +28,7 @@ data class SubjectExtractionState(
     val syllabusName: String = "", 
     val isSaveAsDraftEnabled: Boolean = true, // Default ON
     val loadedDraftId: Int? = null,
+    val isResumedDraft: Boolean = false
 ) {
     enum class Step {
         UPLOAD, PROCESSING, REVIEW

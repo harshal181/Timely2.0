@@ -53,7 +53,7 @@ fun QuickStatsRow(
                 .weight(1f)
                 .clickable { onBatchClick() },
             icon = ImageVector.vectorResource(R.drawable.ic_add_syllabus),
-            label = "Syllabus",
+            label = "Schemes",
             value = stats.batches.toString(),
             showValue = showValue,
             iconBgColor = Color(0xFFECFDF5),

@@ -126,6 +126,71 @@ fun ScheduleSlotDto.toDomain(): ScheduleSlot = when (this) {
     is EmptySlotDto -> EmptySlot(id, title, startTime, endTime)
 }
 
+fun TimetableSlotResponseDto.toDomain(): ScheduleSlot {
+    return when (slotKind) {
+        "lecture", "tutorial" -> LectureSlot(
+            id = id.toString(),
+            subjectCode = assignments.firstOrNull()?.subject?.code ?: "Unknown",
+            subjectName = assignments.firstOrNull()?.subject?.name ?: "Unknown",
+            facultyName = assignments.firstOrNull()?.faculty?.name ?: "TBD",
+            roomNo = assignments.firstOrNull()?.roomLabel ?: "TBD",
+            startTime = startTime,
+            endTime = endTime,
+            colorArgb = assignments.firstOrNull()?.subject?.colorArgb ?: 0xFF2563EB
+        )
+        "practical", "wholeprac" -> PracticalSlot(
+            id = id.toString(),
+            title = title ?: "PRACTICAL SESSION",
+            startTime = startTime,
+            endTime = endTime,
+            colorArgb = assignments.firstOrNull()?.subject?.colorArgb ?: 0xFF059669,
+            batches = assignments.map {
+                BatchInfo(
+                    id = it.id.toString(),
+                    batchName = it.batchLabel ?: "All",
+                    subjectName = it.subject?.name ?: "Unknown",
+                    facultyName = it.faculty?.name ?: "TBD",
+                    roomNo = it.roomLabel ?: "TBD"
+                )
+            }
+        )
+        "recess", "break" -> RecessSlot(
+            id = id.toString(),
+            title = title ?: "Lunch Break",
+            startTime = startTime,
+            endTime = endTime
+        )
+        else -> EmptySlot(
+            id = id.toString(),
+            title = title ?: "No class scheduled",
+            startTime = startTime,
+            endTime = endTime
+        )
+    }
+}
+
+fun ScheduleSlot.toScheduleSlotDto(): ScheduleSlotDto = when (this) {
+    is LectureSlot -> LectureSlotDto(
+        id = id, 
+        subject = SubjectOutDto(subjectCode, subjectName, subjectCode, 1, "CS", colorArgb), 
+        facultyName = facultyName, 
+        roomNo = roomNo, 
+        startTime = startTime, 
+        endTime = endTime
+    )
+    is PracticalSlot -> PracticalSlotDto(
+        id = id, 
+        title = title, 
+        startTime = startTime, 
+        endTime = endTime, 
+        batches = batches.map { 
+            BatchInfoDto(it.batchName, SubjectOutDto(it.subjectName, it.subjectName, it.subjectName, 1, "CS", colorArgb), it.facultyName, it.roomNo) 
+        }
+    )
+    is RecessSlot -> RecessSlotDto(id, title, startTime, endTime)
+    is EmptySlot -> EmptySlotDto(id, title, startTime, endTime)
+}
+
 // Global Parser Config
 val timetableJsonParser = Json {
     ignoreUnknownKeys = true

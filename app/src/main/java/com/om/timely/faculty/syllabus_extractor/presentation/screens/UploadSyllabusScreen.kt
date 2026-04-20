@@ -22,10 +22,13 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.om.timely.R
 import com.om.timely.faculty.syllabus_extractor.presentation.SyllabusExtractorAction
 import com.om.timely.faculty.syllabus_extractor.presentation.SubjectExtractionState
 import com.om.timely.ui.theme.TimelyTheme
@@ -212,7 +215,7 @@ private fun UploadImageSlot(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Outlined.Upload,
+                    imageVector = ImageVector.vectorResource(R.drawable.file_upload_24),
                     contentDescription = "Upload",
                     tint = if (hasImage) Color(0xFF2DD4BF) else Color(0xFF475569),
                     modifier = Modifier.size(24.dp)

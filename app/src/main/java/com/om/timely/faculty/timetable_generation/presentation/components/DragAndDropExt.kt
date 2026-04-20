@@ -1,6 +1,7 @@
 package com.om.timely.faculty.timetable_generation.presentation.components
 
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
@@ -134,7 +135,7 @@ fun Modifier.dragTarget(
             itemSize    = coords.size
         }
         .pointerInput(slot.id) {
-            detectDragGestures(
+            detectDragGesturesAfterLongPress(
                 onDragStart = { localOffset ->
                     state.isDragging          = true
                     state.itemWindowTopLeft   = itemTopLeft

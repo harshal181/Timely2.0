@@ -3,6 +3,7 @@ package com.om.timely.faculty.timetable_generation.domain.repository
 import com.om.timely.core.domain.util.Result
 import com.om.timely.faculty.timetable_generation.domain.error.TimetableError
 import com.om.timely.faculty.timetable_generation.domain.model.TimetableGenerationResult
+import com.om.timely.faculty.timetable_generation.domain.model.TimetableJobStatusModel
 import com.om.timely.faculty.timetable_generation.domain.model.TimetableTemplate
 
 /**
@@ -21,17 +22,27 @@ interface TimetableRepository {
     suspend fun getGeneratedTemplate(semester: Int, division: String): TimetableTemplate?
 
     /**
-     * Trigger backend generation for the given schema.
-     * Returns the freshly-generated [TimetableTemplate] when the solver finishes.
+     * Start the generation job. Returns the pending job ID.
      */
-    suspend fun generateTimetable(
+    suspend fun startGenerationJob(
         syllabusId: Int,
         department: String,
-        division: String
-    ): Result<TimetableGenerationResult, TimetableError>
+        division: String,
+        fcmToken: String
+    ): Result<String, TimetableError>
 
     /**
-     * Persist the user-reviewed (possibly reordered) timetable back to the backend.
+     * Query the current backend status of the generation job.
      */
-    suspend fun saveTimetable(template: TimetableTemplate)
+    suspend fun getJobStatus(jobId: String): Result<TimetableJobStatusModel, TimetableError>
+
+    /**
+     * Fetch the final generated payload once the job status shows completed.
+     */
+    suspend fun getJobResult(jobId: String): Result<TimetableGenerationResult, TimetableError>
+
+    /**
+     * Persist the user-reviewed (possibly reordered) timetables back to the backend in bulk.
+     */
+    suspend fun saveTimetables(templates: List<TimetableTemplate>)
 }

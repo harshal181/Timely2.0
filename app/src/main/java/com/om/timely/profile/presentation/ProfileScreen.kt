@@ -111,22 +111,7 @@ fun ProfileScreen(
         containerColor = screenBackground,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        floatingActionButton = {
-            if (state.profile?.role == UserRole.FACULTY && !state.isLoading) {
-                FloatingActionButton(
-                    onClick = { /* Action */ },
-                    containerColor = Color(0xFF059669),
-                    contentColor = Color.White,
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Row(modifier = Modifier.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Outlined.GeneratingTokens, contentDescription = null)
-                        Spacer(Modifier.width(8.dp))
-                        Text("Generate", fontWeight = FontWeight.Bold)
-                    }
-                }
-            }
-        }
+
     ) { paddingValues ->
 
         if (state.isEditSheetVisible) {

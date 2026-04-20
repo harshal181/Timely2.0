@@ -3,20 +3,18 @@ package com.om.timely.shared.notifications.presentation.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.CheckCircle // Added for the read button
+import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton // Added for the read button
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -36,6 +34,12 @@ fun NotificationCard(
     // Change background slightly if it's unread to make it stand out more
     val backgroundColor = if (!notification.isRead) BrandColors.BgWhite else BrandColors.BgOffWhite
 
+    // Format enum to Title Case (e.g., TIMETABLE_UPDATE -> Timetable Update)
+    val typeLabel = notification.type.name
+        .lowercase()
+        .split("_")
+        .joinToString(" ") { it.replaceFirstChar { char -> char.uppercase() } }
+
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -43,65 +47,90 @@ fun NotificationCard(
         color = backgroundColor,
         border = BorderStroke(1.dp, BrandColors.BorderLight)
     ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
         ) {
-            // Icon Container (Your existing implementation is perfect here)
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
-                    .background(typeConfig.color.copy(alpha = 0.1f)),
-                contentAlignment = Alignment.Center
+            // Top Row: Title and (Optional) Mark as Read
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
             ) {
-                Icon(
-                    imageVector = typeConfig.icon,
-                    contentDescription = null,
-                    tint = typeConfig.color,
-                    modifier = Modifier.size(24.dp)
+                Text(
+                    text = notification.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = BrandColors.TextDark,
+                    fontWeight = if (!notification.isRead) FontWeight.Bold else FontWeight.SemiBold,
+                    modifier = Modifier.weight(1f)
                 )
-            }
 
-            // Content
-            Column(modifier = Modifier.weight(1f)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = notification.title,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = BrandColors.TextDark,
-                        fontWeight = if (!notification.isRead) FontWeight.Bold else FontWeight.SemiBold,
-                        modifier = Modifier.weight(1f)
-                    )
-
-                    // NEW: Individual Mark as Read Button
-                    if (!notification.isRead) {
-                        IconButton(
-                            onClick = onMarkAsRead,
-                            modifier = Modifier.size(28.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.CheckCircle,
-                                contentDescription = "Mark as read",
-                                tint = typeConfig.color // Match the theme of the notification type
-                            )
-                        }
+                if (!notification.isRead) {
+                    IconButton(
+                        onClick = onMarkAsRead,
+                        modifier = Modifier
+                            .size(24.dp)
+                            .padding(start = 8.dp) // Spacing from title
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.CheckCircle,
+                            contentDescription = "Mark as read",
+                            tint = typeConfig.color
+                        )
                     }
                 }
-                Spacer(modifier = Modifier.height(6.dp))
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            // Message
+            Text(
+                text = notification.message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = BrandColors.TextMedium
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Bottom Row: Type Badge • Time / Context
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start
+            ) {
+                // Pill-shaped Type Badge
+                Box(
+                    modifier = Modifier
+                        .background(
+                            color = typeConfig.color.copy(alpha = 0.1f),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = typeLabel,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = typeConfig.color,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                // Dot Separator
                 Text(
-                    text = notification.message,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = BrandColors.TextMedium
+                    text = "•",
+                    color = BrandColors.TextLightGray,
+                    style = MaterialTheme.typography.labelMedium
                 )
-                Spacer(modifier = Modifier.height(10.dp))
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                // Time String (or Semester/Metadata if you add it to AppNotification)
                 Text(
                     text = getRelativeTimeSpanString(notification.timestamp),
-                    style = MaterialTheme.typography.labelSmall,
+                    style = MaterialTheme.typography.labelMedium,
                     color = BrandColors.TextLightGray
                 )
             }
@@ -120,14 +149,13 @@ fun getNotificationTypeConfig(type: NotificationType): NotificationUIConfig {
         NotificationType.EXTRA_CLASS -> NotificationUIConfig(Icons.Default.AddCircle, BrandColors.ExtraClass) // Green
         NotificationType.GENERAL_NOTICE -> NotificationUIConfig(Icons.Default.Info, BrandColors.GeneralNotice) // Orange
         NotificationType.HOLIDAY_NOTICE -> NotificationUIConfig(Icons.Default.Warning, BrandColors.Warning) // Amber
-        NotificationType.PUSH -> NotificationUIConfig(Icons.Default.Info, BrandColors.GeneralNotice)
     }
 }
 
 fun getRelativeTimeSpanString(timeMillis: Long): String {
     val now = System.currentTimeMillis()
     val diff = now - timeMillis
-    
+
     val seconds = diff / 1000
     val minutes = seconds / 60
     val hours = minutes / 60

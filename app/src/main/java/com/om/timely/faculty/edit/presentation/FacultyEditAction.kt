@@ -9,10 +9,10 @@ sealed interface FacultyEditAction {
     data class OnDaySelected(val day: String) : FacultyEditAction
     data class OnSemesterSelected(val semester: Int) : FacultyEditAction
     data class OnSlotsReordered(val slots: List<ScheduleSlot>) : FacultyEditAction
+    object OnDragEnded : FacultyEditAction
     object OnAddSlotClicked : FacultyEditAction
     data class OnSlotEditClicked(val slotId: String) : FacultyEditAction
     object OnGenerateClicked : FacultyEditAction
-    object OnToggleLockClicked : FacultyEditAction
     
     // AI Syllabus Extraction
     object OnSubjectsClicked : FacultyEditAction

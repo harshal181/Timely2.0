@@ -13,7 +13,6 @@ import com.om.timely.auth.data.mappers.toDomain
 import com.om.timely.auth.domain.AuthRepository
 import com.om.timely.auth.domain.AuthResult
 import com.om.timely.auth.domain.User
-import com.om.timely.auth.domain.UserRole
 import com.om.timely.auth.domain.error.AuthError
 import com.om.timely.core.data.safeCall
 import com.om.timely.core.domain.AuthPreferences
@@ -28,8 +27,6 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
 
 class AuthRepositoryImpl(
     private val authPreferences: AuthPreferences,

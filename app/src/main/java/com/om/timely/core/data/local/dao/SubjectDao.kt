@@ -16,6 +16,9 @@ interface SubjectDao {
     @Query("SELECT * FROM subjects WHERE department = :dept")
     fun getAllSubjectsByDeptFlow(dept: String): Flow<List<SubjectEntity>>
 
+    @Query("SELECT * FROM subjects")
+    fun getAllSubjectsFlow(): Flow<List<SubjectEntity>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSubjects(subjects: List<SubjectEntity>)
     

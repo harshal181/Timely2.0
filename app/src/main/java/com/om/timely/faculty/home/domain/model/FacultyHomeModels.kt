@@ -16,6 +16,7 @@ data class QuickStats(
 
 data class DayScheduleInfo(
     val activeDay: String,
+    val dayId: Int? = null,
     val dailyStats: DailyScheduleStats,
     val quickStats: QuickStats,
     val timeline: List<ScheduleSlot>

@@ -46,6 +46,8 @@ fun SyllabusExtractorWizardScreen(
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                if (state.isResumedDraft) return Offset.Zero
+
                 val delta = available.y
 
                 // Reset accumulator if the user changes scroll direction
@@ -95,13 +97,14 @@ fun SyllabusExtractorWizardScreen(
                 .padding(padding)
                 .nestedScroll(nestedScrollConnection)
         ) {
-            AnimatedVisibility(
-                visible = isStepperVisible,
-                // Adjust the tween(500) duration (in milliseconds) to make the fade slower or faster
-                enter = fadeIn(tween(500)) + expandVertically(tween(500)),
-                exit = fadeOut(tween(500)) + shrinkVertically(tween(500))
-            ) {
-                SyllabusStepper(currentStep = state.currentStep)
+            if (!state.isResumedDraft) {
+                AnimatedVisibility(
+                    visible = isStepperVisible,
+                    enter = fadeIn(tween(500)) + expandVertically(tween(500)),
+                    exit = fadeOut(tween(500)) + shrinkVertically(tween(500))
+                ) {
+                    SyllabusStepper(currentStep = state.currentStep)
+                }
             }
 
             when (state.currentStep) {

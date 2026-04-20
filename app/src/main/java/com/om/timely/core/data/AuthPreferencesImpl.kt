@@ -50,12 +50,23 @@ class AuthPreferencesImpl(
         }
     }
 
+    override fun getActiveJobId(): String? {
+        return sharedPreferences.getString(KEY_ACTIVE_JOB_ID, null)
+    }
+
+    override fun saveActiveJobId(jobId: String?) {
+        sharedPreferences.edit(commit = true) {
+            putString(KEY_ACTIVE_JOB_ID, jobId)
+        }
+    }
+
     override fun clearTokens() {
         sharedPreferences.edit(commit = true) {
             remove(KEY_ACCESS_TOKEN)
             remove(KEY_REFRESH_TOKEN)
             remove(KEY_USER_ROLE)
             remove(KEY_USER_DEPT) // clear dept so next user's profile is clean
+            remove(KEY_ACTIVE_JOB_ID)
         }
     }
 
@@ -64,5 +75,6 @@ class AuthPreferencesImpl(
         private const val KEY_REFRESH_TOKEN = "jwt_refresh_token"
         private const val KEY_USER_ROLE = "user_role"
         private const val KEY_USER_DEPT = "user_dept"
+        private const val KEY_ACTIVE_JOB_ID = "active_job_id"
     }
 }

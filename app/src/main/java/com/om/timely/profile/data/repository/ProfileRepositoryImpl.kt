@@ -13,17 +13,12 @@ import com.om.timely.profile.data.dto.FullProfileOutDto
 import com.om.timely.profile.data.dto.StudentDetailsDto
 import com.om.timely.profile.data.dto.UpdateUserDto
 import com.om.timely.profile.data.mappers.toDomain
-import com.om.timely.profile.data.mappers.toDto
 import com.om.timely.profile.domain.error.ProfileError
-import com.om.timely.profile.domain.model.FacultyProfile
 import com.om.timely.profile.domain.model.FullProfile
-import com.om.timely.profile.domain.model.StudentProfile
 import com.om.timely.profile.domain.repository.ProfileRepository
 import io.ktor.client.HttpClient
-import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.authProvider
 import io.ktor.client.plugins.auth.providers.BearerAuthProvider
-import io.ktor.client.plugins.plugin
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.post

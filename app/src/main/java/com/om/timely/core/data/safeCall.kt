@@ -3,11 +3,11 @@ package com.om.timely.core.data
 import android.util.Log
 import com.om.timely.core.domain.util.NetworkError
 import io.ktor.client.call.NoTransformationFoundException
-import io.ktor.client.statement.HttpResponse
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.ensureActive
 import kotlin.coroutines.coroutineContext
 import com.om.timely.core.domain.util.Result
+import io.ktor.client.statement.HttpResponse
 
 suspend inline fun <reified T> safeCall(
     execute: () -> HttpResponse

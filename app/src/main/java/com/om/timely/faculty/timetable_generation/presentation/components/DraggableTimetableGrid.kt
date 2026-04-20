@@ -2,7 +2,8 @@ package com.om.timely.faculty.timetable_generation.presentation.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.detectTransformGestures // Added
+import androidx.compose.foundation.gestures.rememberTransformableState
+import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -45,16 +46,15 @@ fun DraggableTimetableGrid(
     modifier: Modifier = Modifier,
     onSlotDropped: (sourceDayId: Int, sourceSlotIndex: Int, targetDayId: Int, targetSlotIndex: Int) -> Unit
 ) {
-    // 3. Attach gesture detector to capture pinch actions
+    // 3. Attach transformable state to capture two-finger pinch actions (leaves single-finger to scrolls)
+    val transformableState = rememberTransformableState { zoomChange, _, _ ->
+        onScaleChange((scale * zoomChange).coerceIn(0.5f, 2.5f))
+    }
+
     BoxWithConstraints(
         modifier = modifier
             .fillMaxSize()
-            .pointerInput(Unit) {
-                detectTransformGestures { _, _, zoom, _ ->
-                    // Limit zoom between 50% and 250%
-                    onScaleChange((scale * zoom).coerceIn(0.5f, 2.5f))
-                }
-            }
+            .transformable(state = transformableState)
     ) {
         // 4. Multiply core dimensions by the active scale
         val dynamicDayColWidth = (maxWidth * 0.85f) * scale

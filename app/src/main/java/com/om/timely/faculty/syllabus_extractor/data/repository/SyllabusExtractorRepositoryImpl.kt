@@ -1,7 +1,5 @@
 package com.om.timely.faculty.syllabus_extractor.data.repository
 
-import android.content.Context
-import android.net.Uri
 import com.om.timely.BuildConfig
 import com.om.timely.core.data.local.dao.SyllabusDraftDao
 import com.om.timely.core.data.safeCall
@@ -9,7 +7,6 @@ import com.om.timely.core.domain.util.NetworkError
 import com.om.timely.core.domain.util.Result
 import com.om.timely.core.domain.util.map
 import com.om.timely.core.domain.util.mapError
-import com.om.timely.faculty.syllabus_extractor.data.dto.ExtractedSubjectDto
 import com.om.timely.faculty.syllabus_extractor.data.dto.SyllabusBulkImportRequestDto
 import com.om.timely.faculty.syllabus_extractor.data.dto.SyllabusBulkImportSemesterDto
 import com.om.timely.faculty.syllabus_extractor.data.dto.SyllabusBulkImportSubjectDto

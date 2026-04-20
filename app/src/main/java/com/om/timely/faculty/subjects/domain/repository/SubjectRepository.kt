@@ -14,8 +14,8 @@ interface SubjectRepository {
     fun getSubjects(syllabusId: Int): Flow<List<Subject>>
     suspend fun fetchSubjects(syllabusId: Int): Result<Unit, SubjectError>
     
-    fun getAllSubjects(dept: String): Flow<List<Subject>>
-    suspend fun fetchAllSubjects(dept: String): Result<Unit, SubjectError>
+    fun getAllSubjects(): Flow<List<Subject>>
+    suspend fun fetchAllSubjects(): Result<Unit, SubjectError>
     suspend fun addSubject(subject: Subject): Result<Unit, SubjectError>
     suspend fun updateSubject(subject: Subject): Result<Unit, SubjectError>
     suspend fun deleteSubject(subjectId: Int): Result<Unit, SubjectError>
