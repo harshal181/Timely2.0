@@ -35,10 +35,11 @@ import com.om.timely.faculty.edit.domain.model.Faculty
 
 
 sealed interface FacultyEditEvent {
-    data class ShowError(val error: com.om.timely.core.presentation.UiText) : FacultyEditEvent
+    data class ShowError(val error: UiText) : FacultyEditEvent
     object NavigateToSyllabus : FacultyEditEvent
     object NavigateToSubjects : FacultyEditEvent
     object NavigateToGenerate : FacultyEditEvent
+    object NavigateToTT : FacultyEditEvent
 }
 
 class FacultyEditViewModel(
@@ -204,6 +205,23 @@ class FacultyEditViewModel(
                 }
             }
             FacultyEditAction.OnAddSlotClicked -> {
+                val emptySlot = _state.value.timeline.find { it is EmptySlot }
+                if (emptySlot != null) {
+                    val currentState = _state.value.editSlotState
+                    val initialEditState = currentState.copy(
+                        isVisible = true,
+                        slotId = emptySlot.id,
+                        isLecture = true,
+                        lectureSubjectId = null,
+                        lectureFacultyId = null,
+                        lectureRoomId = null,
+                        practicalBatches = emptyList()
+                    )
+                    _state.update { it.copy(editSlotState = initialEditState) }
+                    return
+                }
+
+                // If no empty slot exists, append a new empty slot if under the time limit.
                 val dayId = _state.value.selectedDayId
                 if (dayId == null) {
                     viewModelScope.launch { _events.emit(FacultyEditEvent.ShowError(UiText.DynamicString("Wait for schedule to load."))) }
@@ -212,18 +230,24 @@ class FacultyEditViewModel(
 
                 val currentTimeline = _state.value.timeline
                 val lastTimeStr = currentTimeline.lastOrNull()?.endTime ?: "9:00 AM"
-                
+
                 val formatter = DateTimeFormatter.ofPattern("h:mm a", Locale.US)
-                val lastLocalTime = LocalTime.parse(lastTimeStr.uppercase(), formatter)
+                val lastLocalTime = try {
+                    LocalTime.parse(lastTimeStr.uppercase(), formatter)
+                } catch (e: Exception) {
+                    LocalTime.of(9, 0)
+                }
+
                 val maxLimitTime = LocalTime.of(17, 0) // 5:00 PM
-                
+
                 if (lastLocalTime.isBefore(maxLimitTime)) {
                     val nextEndTime = lastLocalTime.plusHours(1)
-                    val formattedNext = nextEndTime.format(formatter).replace("AM", "AM").replace("PM", "PM") 
-                    
+                    val formattedNext = nextEndTime.format(formatter).replace("AM", "AM").replace("PM", "PM")
+
                     viewModelScope.launch {
                         _state.update { it.copy(isLoading = true) }
                         val createDto = CreateTimetableSlotDto(
+                            slotIndex = currentTimeline.size,
                             startTime = lastTimeStr,
                             endTime = formattedNext,
                             slotKind = "empty",
@@ -439,6 +463,15 @@ class FacultyEditViewModel(
             FacultyEditAction.OnSyllabusClicked -> {
                 viewModelScope.launch {
                     _events.emit(FacultyEditEvent.NavigateToSyllabus)
+                }
+            }
+
+            is FacultyEditAction.OnActivateGroup -> {}
+            is FacultyEditAction.OnDeleteGroup -> {}
+            is FacultyEditAction.OnExportGroup -> {}
+            FacultyEditAction.OnTimetableManagementClicked -> {
+                viewModelScope.launch {
+                    _events.emit(FacultyEditEvent.NavigateToTT)
                 }
             }
         }

@@ -6,11 +6,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class TimetableTemplateResponseDto(
     val id: Int,
+    @SerialName("group_id") val groupId: Int? = null,
     val dept: String,
     val semester: Int,
     val division: String,
-    val name: String,
-    @SerialName("is_active") val isActive: Boolean,
+    val name: String? = null,
     val days: List<TimetableDayResponseDto>
 )
 
@@ -65,6 +65,7 @@ data class FacultyResponseDto(
 
 @Serializable
 data class CreateTimetableSlotDto(
+    @SerialName("slot_index") val slotIndex: Int,
     @SerialName("start_time") val startTime: String,
     @SerialName("end_time") val endTime: String,
     @SerialName("slot_kind") val slotKind: String,
@@ -91,5 +92,12 @@ data class CreateTimetableAssignmentDto(
 
 @Serializable
 data class SwapSlotsDto(
-    @SerialName("slot2_id") val slot2Id: Int
+    @SerialName("first_slot_id") val firstSlotId: Int,
+    @SerialName("second_slot_id") val secondSlotId: Int
+)
+
+@Serializable
+data class TimetableGroupSummaryDto(
+    val id: Int,
+    @SerialName("is_active") val isActive: Boolean = false
 )

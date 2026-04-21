@@ -28,5 +28,7 @@ data class FacultyEditState(
     // Slot Edit State
     val editSlotState: EditSlotState = EditSlotState(),
 
+    val timetableGroups: List<com.om.timely.faculty.timetable_generation.domain.model.TimetableGroup> = emptyList(),
+
     val error: UiText? = null
 )

@@ -3,6 +3,7 @@ package com.om.timely.faculty.timetable_generation.presentation
 import com.om.timely.core.presentation.UiText
 import com.om.timely.faculty.subjects.domain.model.Syllabus
 import com.om.timely.faculty.timetable_generation.domain.model.TimetableDraft
+import com.om.timely.faculty.timetable_generation.domain.model.TimetablePdfAsset
 import com.om.timely.faculty.timetable_generation.domain.model.TimetableTemplate
 
 enum class WizardStep {
@@ -38,5 +39,10 @@ data class TimetableGenerationState(
     val redoStack: List<TimetableTemplate> = emptyList(),
     
     // Error Handling
-    val globalError: UiText? = null
+    val globalError: UiText? = null,
+
+    // PDF Export
+    val isPdfExporting: Boolean = false,
+    val showPdfSheet: Boolean = false,
+    val pdfAssets: List<TimetablePdfAsset> = emptyList()
 )

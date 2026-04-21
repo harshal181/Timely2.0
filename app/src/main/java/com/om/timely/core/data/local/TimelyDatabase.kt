@@ -17,7 +17,7 @@ import com.om.timely.core.data.local.entity.TimetableDraftEntity
 
 @Database(
     entities = [TimetableEntity::class, SubjectEntity::class, SyllabusEntity::class, NotificationEntity::class, SyllabusDraftEntity::class, TimetableDraftEntity::class],
-    version = 6,
+    version = 7,
     exportSchema = false
 )
 abstract class TimelyDatabase : RoomDatabase() {

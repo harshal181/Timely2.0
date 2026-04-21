@@ -40,6 +40,7 @@ import com.om.timely.auth.presentation.components.AuthDropdown
 import com.om.timely.auth.presentation.components.AuthHeader
 import com.om.timely.auth.presentation.components.AuthTextField
 import com.om.timely.auth.presentation.components.RoleToggleSegment
+import com.om.timely.core.presentation.util.Constants
 import kotlinx.coroutines.flow.Flow
 
 @Composable
@@ -167,7 +168,7 @@ fun SignupScreen(
                         label = "Department",
                         hint = "Select department",
                         selectedValue = state.department,
-                        options = listOf("Computer Science", "Information Technology", "Electronics", "Mechanical"),
+                        options = Constants.DEPARTMENTS.values.toList(),
                         isExpanded = state.isDepartmentDropdownExpanded,
                         onExpandedChange = { onAction(SignupAction.OnToggleDepartmentDropdown(it)) },
                         onOptionSelected = { onAction(SignupAction.OnDepartmentChanged(it)) }
@@ -227,7 +228,7 @@ fun SignupScreen(
                         label = "Department / Office",
                         hint = "Select department",
                         selectedValue = state.department,
-                        options = listOf("Computer Engineering", "Civil Engineering", "Electronics", "Mechanical"),
+                        options = Constants.DEPARTMENTS.values.toList(),
                         isExpanded = state.isDepartmentDropdownExpanded,
                         onExpandedChange = { onAction(SignupAction.OnToggleDepartmentDropdown(it)) },
                         onOptionSelected = { onAction(SignupAction.OnDepartmentChanged(it)) }

@@ -13,6 +13,8 @@ import com.om.timely.faculty.syllabus_extractor.presentation.SyllabusExtractorAc
 import androidx.compose.runtime.LaunchedEffect
 import com.om.timely.faculty.syllabus_extractor.presentation.SyllabusExtractorViewModel
 import com.om.timely.faculty.syllabus_extractor.presentation.screens.SyllabusExtractorWizardScreen
+import com.om.timely.faculty.timetable_management.presentation.TimetableManagementViewModel
+import com.om.timely.faculty.timetable_management.presentation.screens.TimetableManagementScreen
 import org.koin.androidx.compose.koinViewModel
 
 fun NavGraphBuilder.facultyNavGraph(navController: NavController) {
@@ -62,6 +64,18 @@ fun NavGraphBuilder.facultyNavGraph(navController: NavController) {
                 onAction = viewModel::onAction,
                 events = viewModel.events,
                 rootNavController = navController
+            )
+        }
+
+        composable(Screen.Faculty.TimetableManagement.route) {
+            val viewModel: TimetableManagementViewModel = koinViewModel()
+            val state by viewModel.state.collectAsStateWithLifecycle()
+            
+            TimetableManagementScreen(
+                state = state,
+                events = viewModel.events,
+                onAction = viewModel::onAction,
+                onNavigateBack = { navController.popBackStack() }
             )
         }
 

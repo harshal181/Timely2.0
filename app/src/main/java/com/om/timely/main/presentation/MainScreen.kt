@@ -89,6 +89,23 @@ fun MainScreen(
                         if (role == "FACULTY") {
                             val homeViewModel: FacultyHomeViewModel = koinViewModel()
                             val homeState by homeViewModel.state.collectAsStateWithLifecycle()
+
+                            LaunchedEffect(homeViewModel.events) {
+                                homeViewModel.events.collect { event ->
+                                    when (event) {
+                                        FacultyHomeEvent.NavigateToSubjects ->
+                                            bottomNavController.navigate("subject_management")
+                                        FacultyHomeEvent.NavigateToSchemes ->
+                                            bottomNavController.navigate("syllabus_management")
+                                        FacultyHomeEvent.NavigateToTimetableManagement ->
+                                            rootNavController.navigate(Screen.Faculty.TimetableManagement.route)
+                                        FacultyHomeEvent.NavigateToNotifications ->
+                                            bottomNavController.navigate(BottomNavItem.Alerts.route)
+                                        else -> Unit
+                                    }
+                                }
+                            }
+
                             FacultyHomeScreen(
                                 state = homeState,
                                 onAction = homeViewModel::onAction,
@@ -164,6 +181,9 @@ fun MainScreen(
                             },
                             onNavigateToGenerate = {
                                 rootNavController.navigate(Screen.Faculty.TimetableWizard.route)
+                            },
+                            onNavigateToTimetable = {
+                                rootNavController.navigate(Screen.Faculty.TimetableManagement.route)
                             }
                         )
                     }

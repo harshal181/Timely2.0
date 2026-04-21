@@ -82,7 +82,16 @@ class FacultyHomeViewModel(
                 fetchSchedule(_state.value.selectedDay, action.semester)
             }
             FacultyHomeAction.OnNotificationClick -> {
-                // Future Implementation
+                viewModelScope.launch { _events.emit(FacultyHomeEvent.NavigateToNotifications) }
+            }
+            FacultyHomeAction.OnSubjectsClick -> {
+                viewModelScope.launch { _events.emit(FacultyHomeEvent.NavigateToSubjects) }
+            }
+            FacultyHomeAction.OnSchemesClick -> {
+                viewModelScope.launch { _events.emit(FacultyHomeEvent.NavigateToSchemes) }
+            }
+            FacultyHomeAction.OnTimetableManagementClick -> {
+                viewModelScope.launch { _events.emit(FacultyHomeEvent.NavigateToTimetableManagement) }
             }
         }
     }

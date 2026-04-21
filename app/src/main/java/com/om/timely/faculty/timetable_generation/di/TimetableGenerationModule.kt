@@ -5,6 +5,7 @@ import com.om.timely.faculty.timetable_generation.data.repository.RemoteTimetabl
 import com.om.timely.faculty.timetable_generation.domain.repository.TimetableDraftRepository
 import com.om.timely.faculty.timetable_generation.domain.repository.TimetableRepository
 import com.om.timely.faculty.timetable_generation.presentation.TimetableGenerationViewModel
+import com.om.timely.faculty.timetable_management.presentation.TimetableManagementViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
@@ -18,4 +19,5 @@ val timetableGenerationModule = module {
     }
 
     viewModel { TimetableGenerationViewModel(get(), get(), get(), get()) }
+    viewModel { TimetableManagementViewModel(get(), get()) }
 }

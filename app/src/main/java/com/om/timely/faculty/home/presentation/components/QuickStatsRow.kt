@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Book
-import androidx.compose.material.icons.outlined.Group
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -27,37 +26,56 @@ import com.om.timely.R
 fun QuickStatsRow(
     stats: QuickStats,
     onSubjectClick: () -> Unit,
-    onBatchClick: () -> Unit = {},
-    showValue: Boolean = true,
+    onBatchClick: () -> Unit,
+    onTimetableClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
+    Column(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 12.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
+        // Row 1: Subjects + Schemes
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            QuickStatItem(
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable { onSubjectClick() },
+                icon = Icons.Outlined.Book,
+                label = "Subjects",
+                value = stats.subjects.toString(),
+                showValue = true,
+                iconBgColor = Color(0xFFF5F3FF),
+                iconColor = Color(0xFF7C3AED)
+            )
+            QuickStatItem(
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable { onBatchClick() },
+                icon = ImageVector.vectorResource(R.drawable.ic_add_syllabus),
+                label = "Schemes",
+                value = stats.batches.toString(),
+                showValue = true,
+                iconBgColor = Color(0xFFECFDF5),
+                iconColor = Color(0xFF059669)
+            )
+        }
+
+        // Row 2: Manage Timetable Versions (full-width navigation card)
         QuickStatItem(
             modifier = Modifier
-                .weight(1f)
-                .clickable { onSubjectClick() },
-            icon = Icons.Outlined.Book,
-            label = "Subjects",
-            value = stats.subjects.toString(),
-            showValue = showValue,
-            iconBgColor = Color(0xFFF5F3FF),
-            iconColor = Color(0xFF7C3AED)
-        )
-        QuickStatItem(
-            modifier = Modifier
-                .weight(1f)
-                .clickable { onBatchClick() },
-            icon = ImageVector.vectorResource(R.drawable.ic_add_syllabus),
-            label = "Schemes",
-            value = stats.batches.toString(),
-            showValue = showValue,
-            iconBgColor = Color(0xFFECFDF5),
-            iconColor = Color(0xFF059669)
+                .fillMaxWidth()
+                .clickable { onTimetableClick() },
+            icon = Icons.Outlined.Schedule,
+            label = "Manage Timetable Versions",
+            value = "",
+            showValue = false,
+            iconBgColor = Color(0xFFFFF7ED),
+            iconColor = Color(0xFFEA580C)
         )
     }
 }
@@ -102,7 +120,7 @@ private fun QuickStatItem(
             Column(
                 verticalArrangement = Arrangement.Center
             ) {
-                if (showValue) {
+                if (showValue && value.isNotBlank()) {
                     Text(
                         text = value,
                         color = Color(0xFF1F2937),

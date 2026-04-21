@@ -3,6 +3,8 @@ package com.om.timely.faculty.timetable_generation.data.mapper
 import com.om.timely.faculty.timetable_generation.data.remote.dto.TimetableDayDto
 import com.om.timely.faculty.timetable_generation.data.remote.dto.TimetableSlotDto
 import com.om.timely.faculty.timetable_generation.data.remote.dto.TimetableTemplateDto
+import com.om.timely.faculty.timetable_generation.data.remote.dto.TimetableGroupDto
+import com.om.timely.faculty.timetable_generation.data.remote.dto.TimetableTemplateSummaryDto
 import com.om.timely.faculty.timetable_generation.domain.model.*
 
 fun TimetableTemplateDto.toDomain(): TimetableTemplate {
@@ -86,5 +88,70 @@ fun TimetableSlotDto.toDomain(dayId: Int, targetSlotIndex: Int, dept: String, se
         slotKind = slotKind,
         title = if (slotKind == SlotKind.BREAK) "RECESS" else null, // Handle break natively
         assignments = assignments
+    )
+}
+
+fun TimetableTemplate.toDto(): TimetableTemplateDto {
+    return TimetableTemplateDto(
+        dept = this.department,
+        semester = this.semester,
+        division = this.division,
+        days = this.days.map { it.toDto() }
+    )
+}
+
+fun TimetableDay.toDto(): TimetableDayDto {
+    return TimetableDayDto(
+        dayIndex = this.dayIndex,
+        dayOfWeek = this.dayOfWeek,
+        slots = this.slots.filter { it.slotKind != SlotKind.BREAK }.map { it.toDto() }
+    )
+}
+
+fun TimetableSlot.toDto(): com.om.timely.faculty.timetable_generation.data.remote.dto.TimetableSlotDto {
+    val backendIndex = if (this.slotIndex > 3) this.slotIndex - 1 else this.slotIndex
+    return com.om.timely.faculty.timetable_generation.data.remote.dto.TimetableSlotDto(
+        slotIndex = backendIndex,
+        slotName = "${this.startTime}-${this.endTime}",
+        slotKind = this.slotKind.apiValue,
+        assignments = this.assignments.map { a ->
+            com.om.timely.faculty.timetable_generation.data.remote.dto.TimetableSlotAssignmentDto(
+                courseCode = a.subject.code,
+                subjectName = a.subject.name,
+                subjectAbbr = a.subject.abbr,
+                facultyName = a.faculty.name,
+                batchLabel = a.batchLabel
+            )
+        }
+    )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Group DTO → Domain  (for the /groups/details endpoint)
+// ─────────────────────────────────────────────────────────────────────────────
+
+fun TimetableGroupDto.toDomainGroup(): TimetableGroup {
+    return TimetableGroup(
+        id = id,
+        name = name,
+        dept = dept,
+        termType = termType,
+        isActive = isActive,
+        templateCount = templateCount,
+        semesters = semesters,
+        createdAt = createdAt,
+        updatedAt = updatedAt,
+        templates = templates.map { it.toDomainTemplate() }
+    )
+}
+
+fun TimetableTemplateSummaryDto.toDomainTemplate(): TimetableTemplate {
+    return TimetableTemplate(
+        id = id,
+        department = dept,
+        semester = semester,
+        division = division,
+        name = name ?: "Sem $semester — Division $division",
+        days = emptyList() // Summary view does not include day/slot detail
     )
 }

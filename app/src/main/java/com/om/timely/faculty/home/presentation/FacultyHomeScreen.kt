@@ -73,6 +73,9 @@ fun FacultyHomeScreen(
                         message = event.error.asString(context)
                     )
                 }
+                // Navigation events are handled by the caller (MainScreen)
+                // via the onAction callbacks — no direct navigation here
+                else -> Unit
             }
         }
     }
@@ -113,6 +116,17 @@ fun FacultyHomeScreen(
                         item {
                             state.scheduleInfo?.dailyStats?.let { dailyStats ->
                                 TodayLoadBanner(stats = dailyStats)
+                            }
+                        }
+
+                        item {
+                            state.scheduleInfo?.quickStats?.let { quickStats ->
+                                QuickStatsRow(
+                                    stats = quickStats,
+                                    onSubjectClick = { onAction(FacultyHomeAction.OnSubjectsClick) },
+                                    onBatchClick = { onAction(FacultyHomeAction.OnSchemesClick) },
+                                    onTimetableClick = { onAction(FacultyHomeAction.OnTimetableManagementClick) }
+                                )
                             }
                         }
 

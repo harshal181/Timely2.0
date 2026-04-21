@@ -30,6 +30,10 @@ sealed interface TimetableGenerationAction {
     data class LoadDraft(val draftId: Int) : TimetableGenerationAction
     data class DeleteDraft(val draftId: Int) : TimetableGenerationAction
     
+    // PDF Export
+    object ExportToPdf : TimetableGenerationAction
+    object DismissPdfSheet : TimetableGenerationAction
+
     // Navigation
     object NavigateBack : TimetableGenerationAction
 

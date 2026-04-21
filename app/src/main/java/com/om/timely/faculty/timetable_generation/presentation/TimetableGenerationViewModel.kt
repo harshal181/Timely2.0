@@ -115,6 +115,10 @@ class TimetableGenerationViewModel(
             TimetableGenerationAction.ToggleViewType -> {
                 _state.update { it.copy(isListView = !it.isListView) }
             }
+            TimetableGenerationAction.ExportToPdf -> exportToPdf()
+            TimetableGenerationAction.DismissPdfSheet -> {
+                _state.update { it.copy(showPdfSheet = false) }
+            }
             TimetableGenerationAction.NavigateBack -> {
                 viewModelScope.launch { _eventChannel.send(TimetableGenerationEvent.NavigateToDashboard) }
             }
@@ -170,13 +174,55 @@ class TimetableGenerationViewModel(
             _state.update { it.copy(isDraftSaving = true) } 
             try {
                 // Publish all templates in a single bulk request
-                timetableRepository.saveTimetables(templatesToPublish)
+                timetableRepository.saveTimetables(
+                    templates = templatesToPublish,
+                    groupName = "",
+                )
                 
                 _eventChannel.send(TimetableGenerationEvent.ShowSnackbar(UiText.DynamicString("All timetables published successfully!")))
             } catch (e: Exception) {
                 _eventChannel.send(TimetableGenerationEvent.ShowSnackbar(UiText.DynamicString("Failed to publish: ${e.message}")))
             } finally {
                 _state.update { it.copy(isDraftSaving = false) }
+            }
+        }
+    }
+
+    private fun exportToPdf() {
+        val currentState = _state.value
+        val activeTemplate = currentState.activeTemplate
+
+        // Sync active template edits back into the full list before exporting
+        val templatesToExport = currentState.generatedTemplates.map { template ->
+            if (activeTemplate != null && template.semester == activeTemplate.semester) activeTemplate
+            else template
+        }
+
+        if (templatesToExport.isEmpty()) {
+            viewModelScope.launch {
+                _eventChannel.send(TimetableGenerationEvent.ShowSnackbar(UiText.DynamicString("No timetables to export.")))
+            }
+            return
+        }
+
+        viewModelScope.launch {
+            _state.update { it.copy(isPdfExporting = true) }
+            when (val result = timetableRepository.exportToPdf(templatesToExport)) {
+                is Result.Success -> {
+                    _state.update {
+                        it.copy(
+                            isPdfExporting = false,
+                            showPdfSheet = true,
+                            pdfAssets = result.data
+                        )
+                    }
+                }
+                is Result.Error -> {
+                    _state.update { it.copy(isPdfExporting = false) }
+                    _eventChannel.send(
+                        TimetableGenerationEvent.ShowSnackbar(result.error.asUiText())
+                    )
+                }
             }
         }
     }

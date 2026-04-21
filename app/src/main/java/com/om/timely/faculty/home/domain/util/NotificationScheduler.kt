@@ -46,15 +46,21 @@ class NotificationScheduler(private val context: Context) {
             }
 
             try {
-                // Formatting safety: Ensure there's a space before AM/PM (e.g., "9:00AM" -> "9:00 AM")
-                val rawTime = slot.startTime.uppercase().trim()
-                val cleanTime = if (!rawTime.contains(" ")) {
-                    rawTime.replace("AM", " AM").replace("PM", " PM")
-                } else {
-                    rawTime.replace("\\s+".toRegex(), " ") // Ensure only one space
-                }
+                // Safely extract just the time digits "H:MM" or "HH:MM"
+                val rawTime = slot.startTime.uppercase().replace("AM", "").replace("PM", "").trim()
+                val parts = rawTime.split(":")
+                if (parts.size < 2) continue
 
-                val startTime = LocalTime.parse(cleanTime, formatter)
+                var hour = parts[0].toIntOrNull() ?: continue
+                val minute = parts[1].take(2).toIntOrNull() ?: continue // take(2) safely ignores trailing spaces
+
+                // Heuristic deduction for college schedules (College runs ~8 AM to ~6 PM):
+                // Hours from 1 to 7 are strictly PM. E.g., "2:00" -> 14:00
+                // Hours from 8 to 11 are strictly AM. E.g., "10:30" -> 10:30
+                // Hour 12 is noon (PM). E.g., "12:30" -> 12:30
+                if (hour in 1..7) hour += 12
+
+                val startTime = LocalTime.of(hour, minute)
                 val classDateTime = LocalDateTime.of(targetDate, startTime)
                 val alarmTime = classDateTime.minusMinutes(5)
 

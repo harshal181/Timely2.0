@@ -12,6 +12,7 @@ sealed class Screen(val route: String) {
         object ManageCourses : Faculty("manage_courses")
         object StudentList : Faculty("student_list")
         object TimetableWizard : Faculty("timetable_wizard")
+        object TimetableManagement : Faculty("timetable_management")
         // Example with arguments
         object Profile : Faculty("faculty_profile/{facultyId}") {
             fun passId(id: String) = "faculty_profile/$id"

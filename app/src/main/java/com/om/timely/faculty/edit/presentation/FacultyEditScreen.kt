@@ -3,6 +3,7 @@ package com.om.timely.faculty.edit.presentation
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -62,7 +64,9 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.ui.platform.LocalContext
 import com.om.timely.faculty.edit.presentation.components.EditSlotBottomSheet
+import com.om.timely.faculty.home.domain.model.DailyScheduleStats
 import com.om.timely.faculty.home.domain.model.QuickStats
+import com.om.timely.faculty.home.presentation.FacultyHomeAction
 import com.om.timely.faculty.home.presentation.components.QuickStatsRow
 
 @Composable
@@ -72,7 +76,8 @@ fun FacultyEditScreen(
     events: Flow<FacultyEditEvent>,
     onNavigateToSyllabus: () -> Unit,
     onNavigateToSubjects: () -> Unit,
-    onNavigateToGenerate: () -> Unit
+    onNavigateToGenerate: () -> Unit,
+    onNavigateToTimetable: () -> Unit
 ) {
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
@@ -91,6 +96,10 @@ fun FacultyEditScreen(
                     }
                     is FacultyEditEvent.NavigateToGenerate -> {
                         onNavigateToGenerate()
+                    }
+
+                    FacultyEditEvent.NavigateToTT -> {
+                        onNavigateToTimetable()
                     }
                 }
             }
@@ -204,13 +213,15 @@ fun FacultyEditScreen(
 
             // Relocated Quick Stats
             val quickStats = QuickStats(
-                subjects = 0, batches = 0, hoursPerWeek = 0
+                subjects = 0,
+                batches = 0,
+                hoursPerWeek = 0
             )
             QuickStatsRow(
                 stats = quickStats,
-                showValue = false,
                 onSubjectClick = { onAction(FacultyEditAction.OnSubjectsClicked) },
-                onBatchClick = { onAction(FacultyEditAction.OnSyllabusClicked) }
+                onBatchClick = { onAction(FacultyEditAction.OnSyllabusClicked) },
+                onTimetableClick = { onAction(FacultyEditAction.OnTimetableManagementClicked) },
             )
 
             // Day Selector
@@ -247,7 +258,7 @@ fun FacultyEditScreen(
                     )
                 }
             } else {
-                val listState = androidx.compose.foundation.lazy.rememberLazyListState()
+                val listState = rememberLazyListState()
 
                 val reorderableState = rememberReorderableLazyColumnState(listState) { from, to ->
                     val updatedList = state.timeline.toMutableList().apply {
@@ -297,7 +308,7 @@ fun FacultyEditScreen(
                                                     .clip(RoundedCornerShape(10.dp))
                                                     .background(Color(0xFFF3F4F6))
                                                     .draggableHandle(
-                                                        interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+                                                        interactionSource = remember { MutableInteractionSource() }
                                                     ),
                                                 contentAlignment = Alignment.Center
                                             ) {

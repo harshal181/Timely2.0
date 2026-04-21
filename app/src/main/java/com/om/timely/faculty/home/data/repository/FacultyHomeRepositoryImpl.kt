@@ -59,7 +59,7 @@ class FacultyHomeRepositoryImpl(
             cachedDomain?.let { timeline ->
                 scheduleNotificationsUseCase(timeline, day, semester)
 
-                return Result.Success(mapToDayScheduleInfo(day, null, semester, timeline))
+                return Result.Success(mapToDayScheduleInfo(day, cachedEntity.dayId, semester, timeline))
             }
         }
 
@@ -100,6 +100,7 @@ class FacultyHomeRepositoryImpl(
                     semester = semester,
                     division = "A",
                     dayOfWeek = day,
+                    dayId = dayDto.id,
                     timelineJson = jsonString,
                     updatedAt = System.currentTimeMillis()
                 )
@@ -138,9 +139,9 @@ class FacultyHomeRepositoryImpl(
 
     override suspend fun swapSlots(dayId: Int, firstSlotId: Int, secondSlotId: Int): Result<Unit, TimeTableError> {
         return safeCall<Any> {
-            httpClient.patch("${BuildConfig.BASE_URL}/api/timetables/days/$dayId/slots/$firstSlotId/swap") {
+            httpClient.post("${BuildConfig.BASE_URL}/api/timetables/days/$dayId/swap") {
                 contentType(ContentType.Application.Json)
-                setBody(SwapSlotsDto(secondSlotId))
+                setBody(SwapSlotsDto(firstSlotId, secondSlotId))
             }
         }.map { }.mapError { TimeTableError.Network(it) }
     }

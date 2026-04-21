@@ -10,6 +10,7 @@ data class TimetableEntity(
     val semester: Int,
     val division: String,
     val dayOfWeek: String,
+    val dayId: Int? = null,
     val timelineJson: String, // Stored as a JSON Array string to preserve polymorphic types cleanly
     val updatedAt: Long
 )

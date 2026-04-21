@@ -17,6 +17,7 @@ sealed interface FacultyEditAction {
     // AI Syllabus Extraction
     object OnSubjectsClicked : FacultyEditAction
     object OnSyllabusClicked : FacultyEditAction
+    object OnTimetableManagementClicked : FacultyEditAction
     
     // Subject Mapping Action handlers
     object OnManageSubjectsClicked : FacultyEditAction
@@ -41,4 +42,9 @@ sealed interface FacultyEditAction {
     // Edit Slot Save / Delete
     object OnSaveSlotChanges : FacultyEditAction
     data class OnDeleteSlot(val slotId: String) : FacultyEditAction
+
+    // Timetable Versions Actions
+    data class OnActivateGroup(val groupId: Int) : FacultyEditAction
+    data class OnDeleteGroup(val groupId: Int) : FacultyEditAction
+    data class OnExportGroup(val groupId: Int) : FacultyEditAction
 }

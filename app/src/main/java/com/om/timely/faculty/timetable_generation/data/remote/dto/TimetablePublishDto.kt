@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class PublishTimetableBulkRequestDto(
+    @SerialName("group_name") val groupName: String,
     val templates: List<PublishTimetableTemplateDto>
 )
 
@@ -14,7 +15,6 @@ data class PublishTimetableTemplateDto(
     val semester: Int,
     val division: String,
     val name: String,
-    @SerialName("is_active") val isActive: Boolean,
     val days: List<PublishTimetableDayDto>
 )
 

@@ -46,7 +46,7 @@ class SignupViewModel(
                 val formatted = action.division.uppercase().take(1)
                 _state.update { it.copy(division = formatted) }
             }
-            is SignupAction.OnBatchChanged -> _state.update { it.copy(batch = action.batch.uppercase()) }
+            is SignupAction.OnBatchChanged -> _state.update { it.copy(batch = action.batch) }
             is SignupAction.OnCourseChanged -> _state.update { it.copy(course = action.course) }
             is SignupAction.OnDepartmentChanged -> _state.update { it.copy(department = action.department) }
 
@@ -126,7 +126,7 @@ class SignupViewModel(
             if (!studentIdRegex.matches(currentState.studentId)) return setError("Student ID must start with ABC followed by numbers")
             if (sem !in 1..8) return setError("Semester must be between 1 and 8")
             if (currentState.division.uppercase() !in listOf("A", "B")) return setError("Division must be A or B")
-            if (currentState.batch.uppercase() !in listOf("Batch 1", "Batch 2")) return setError("Batch must be B1 or B2")
+            if (currentState.batch !in listOf("Batch 1", "Batch 2")) return setError("Batch must be Batch 1 or Batch 2")
         } else if (currentState.selectedRole == UserRole.FACULTY) {
             if (!facultyIdRegex.matches(currentState.facultyId)) return setError("Faculty ID must start with FAC followed by numbers")
             if (currentState.designation.isBlank()) return setError("Designation is required")
